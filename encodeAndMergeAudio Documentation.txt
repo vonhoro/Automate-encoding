@@ -1,0 +1,10 @@
+run with 
+node encodeAndMergeAudio.js
+ and follow instructions'
+
+It only works with .mkv files
+For this to work You need:
+Node installed
+MKVToolNix installed, I tested with v51.0.0
+ffmmpeg installed in path
+mediainfo CLI installed in path

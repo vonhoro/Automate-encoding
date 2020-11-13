@@ -1,0 +1,7 @@
+His creates 6 ramdon screen shots for each resolution of the source video and also creates
+a small clip from the same video 
+
+you run it using
+
+node previewAndEncode.js
+

@@ -1,0 +1,25 @@
+{
+  "name": "autoencoder",
+  "version": "1.0.0",
+  "description": "Bruh",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prettier-watch": "onchange \"**/**/**.js\" -- prettier --write {{changed}}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/autoencoder1/autoencoder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/autoencoder1/autoencoder/issues"
+  },
+  "homepage": "https://gitlab.com/autoencoder1/autoencoder#readme",
+  "dependencies": {
+    "jimp": "^0.16.1",
+    "onchange": "^7.1.0",
+    "prettier": "^2.1.2"
+  }
+}
