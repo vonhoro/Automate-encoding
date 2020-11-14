@@ -180,7 +180,7 @@ const askingLanguage = () => {
 const askingForVideo = () => {
   return new Promise((resolve, reject) =>
     rl.question(
-      "Enter the video Link (Only mkv videos will work) \nExample: c:\users\videosmy video.mkv\n ",
+      "Enter the video Link (Only mkv videos will work) \nExample: c:\\users\\videos\\my video.mkv\n ",
       async (videoLink) => {
         const video = getOSRUI(videoLink);
         resolve(video);
@@ -208,13 +208,16 @@ const askingConfirmation = (msg) => {
 
 const main = async () => {
   try {
-    let vsSetting = `
+
+    console.log("This will be the first test of doing everything to encode\n");
+    const video = await askingForVideo();
+    
+    
+        let vsSetting = `
 import vapoursynth as vs
 core = vs.get_core()
 clip = core.ffms2.Source(${video})
 `;
-    console.log("This will be the first test of doing everything to encode\n");
-    const video = await askingForVideo();
     console.log("First we are looking for the crop settings\n");
     const numberOfScreenshots = await askingNumber(
       "Enter the number of Sceenshots you want for the crop test(it has to be an integer), if you use an invalid number or just press enter it will default to 15\n"
