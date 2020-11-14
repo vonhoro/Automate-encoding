@@ -15,7 +15,7 @@ const currentFolder = process.cwd();
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
 const { jimpAnalysis } = require("./Modules/jimpAnalysis.js");
-
+const {cropHorizontally , cropVertically } =require(`./Modules/cropFunction.js`)
 const { encodeAudio } = require("./Modules/encodeAudio.js");
 const { getTracksInfo } = require("./Modules/getTracksInfo.js");
 const { extractTracks } = require("./Modules/extractTracks.js");
@@ -191,7 +191,7 @@ const askingForVideo = () => {
 const askingNumber = (msg, defaultNumber) => {
   return new Promise((resolve, reject) =>
     rl.question(msg, async (number) => {
-      if (number.match(/^\d+\d$/)) resolve(parseInt(number));
+      if (number.match(/^\d+$/)) resolve(parseInt(number));
       resolve(defaultNumber);
     })
   );
@@ -211,7 +211,7 @@ const main = async () => {
 
     console.log("This will be the first test of doing everything to encode\n");
     const video = await askingForVideo();
-    
+      
     
         let vsSetting = `
 import vapoursynth as vs
@@ -220,13 +220,13 @@ clip = core.ffms2.Source(${video})
 `;
     console.log("First we are looking for the crop settings\n");
     const numberOfScreenshots = await askingNumber(
-      "Enter the number of Sceenshots you want for the crop test(it has to be an integer), if you use an invalid number or just press enter it will default to 15\n"
+      "Enter the number of Sceenshots you want for the crop test(it has to be an integer), if you use an invalid number or just press enter it will default to 15\n",15
     );
-
-    const { numberOfFrames } = await getVideoInfo();
+        console.log(numberOfScreenshots)
+    const { numberOfFrames } = await getVideoInfo(video);
     const positions = randomFrameDistribution(
       numberOfFrames,
-      numberOfScreenhots
+      numberOfScreenshots
     );
     await createScreenshots({
       video,
