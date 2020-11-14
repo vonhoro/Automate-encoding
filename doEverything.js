@@ -237,7 +237,7 @@ clip = core.ffms2.Source(${video})
     });
     const folder = path.join(
       currentFolder,
-      `jobCrop preview/Take number - ${cropTries}`
+      `jobCrop preview/Take number - ${cropTries}/screenshots`
     );
     const { removeTop, removeBottom } = await cropVertically(folder, "crop");
     const { removeRight, removeLeft } = await cropHorizontally(folder, "crop");

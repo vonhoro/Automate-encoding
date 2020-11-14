@@ -14,7 +14,6 @@ const cropVertically = async (folder, name) => {
     let removeBottom = 0;
     let allRemoveTop = [];
     let allRemoveBottom = [];
-
     const filesInDir = fs.readdirSync(folder);
     const screenshots = filesInDir
       .filter((filename) => filename.includes(name))
