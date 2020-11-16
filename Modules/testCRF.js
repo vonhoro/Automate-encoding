@@ -42,10 +42,10 @@ const testCRF = async ({
     const length = Length ? Length : 50;
     const settingLocation = path.join(currentFolder, "vsSetting.py");
     const x264SettingLocation = path.join(currentFolder, `x264-setting.txt`);
-    const x264Setting =  fs.readFileSync(x264SettingLocation, "utf8").trim()
+    const x264Setting = fs.readFileSync(x264SettingLocation, "utf8").trim();
     let testText;
-    if (fs.existSync(settingLocation)) {
-      testText = fs.readFileSync(settingLocation", "utf8");
+    if (fs.existsSync(settingLocation)) {
+      testText = fs.readFileSync(settingLocation, "utf8");
       testText += `
 ratio = clip.width/clip.height
 w = round(${resolution}*ratio/2)*2
@@ -77,7 +77,7 @@ select.set_output()
     let diff = 0;
     let adjust = 0;
     console.log(`Beginning CRF calibration...\n`);
-     do {
+    do {
       const testCommand = `vspipe --y4m testCRF.py - | ${x264Setting} --crf ${crf} `;
       console.log(`Starting x264 test for CRF=${crf}`);
 
@@ -119,10 +119,11 @@ select.set_output()
       console.log(targetBitrate);
     } while (diff !== 0);
     return crf;
-  } catch (errror) {
+  } catch (error) {
     console.log(error);
   }
 };
+module.exports = { testCRF };
 // testCRF({
 // video: "C:\\Users\\Administrator\\Desktop\\Example Remux\\remux.mkv",
 // resolution: 1080,

@@ -14,8 +14,19 @@ const currentFolder = process.cwd();
 
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
+const { testCRF } = require("./Modules/testCRF.js");
+const { testVideo } = require("./Modules/testVideo.js");
+const { testx264Setting } = require("./Modules/testx264Setting.js");
+const { x264Test } = require("./Modules/settings.js");
+
+const {
+  createScreenshotsMetadata,
+} = require("./Modules/createScreenshotsMetadata.js");
 const { jimpAnalysis } = require("./Modules/jimpAnalysis.js");
-const {cropHorizontally , cropVertically } =require(`./Modules/cropFunction.js`)
+const {
+  cropHorizontally,
+  cropVertically,
+} = require(`./Modules/cropFunction.js`);
 const { encodeAudio } = require("./Modules/encodeAudio.js");
 const { getTracksInfo } = require("./Modules/getTracksInfo.js");
 const { extractTracks } = require("./Modules/extractTracks.js");
@@ -200,7 +211,7 @@ const askingNumber = (msg, defaultNumber) => {
 const askingConfirmation = (msg) => {
   return new Promise((resolve, reject) =>
     rl.question(msg, async (confirm) => {
-      if (number.match(/^y$/i)) resolve(true);
+      if (confirm.match(/^y$/i)) resolve(true);
       resolve(false);
     })
   );
@@ -208,21 +219,20 @@ const askingConfirmation = (msg) => {
 
 const main = async () => {
   try {
-
     console.log("This will be the first test of doing everything to encode\n");
     const video = await askingForVideo();
-      
-    
-        let vsSetting = `
+
+    let vsSetting = `
 import vapoursynth as vs
 core = vs.get_core()
 clip = core.ffms2.Source(${video})
 `;
     console.log("First we are looking for the crop settings\n");
     const numberOfScreenshots = await askingNumber(
-      "Enter the number of Sceenshots you want for the crop test(it has to be an integer), if you use an invalid number or just press enter it will default to 15\n",15
+      "Enter the number of Sceenshots you want for the crop test(it has to be an integer), if you use an invalid number or just press enter it will default to 15\n",
+      15
     );
-        console.log(numberOfScreenshots)
+    console.log(numberOfScreenshots);
     const { numberOfFrames } = await getVideoInfo(video);
     const positions = randomFrameDistribution(
       numberOfFrames,
@@ -257,7 +267,7 @@ clip = core.ffms2.Source(${video})
       extraOptions,
     });
     console.log(
-      `You can see all screenshots at jobCrop preview/Take number - ${counter} with the suggested options\n`
+      `You can see all screenshots at jobCrop preview/Take number - ${cropTries} with the suggested options\n`
     );
 
     const useSetting = await askingConfirmation(
@@ -274,13 +284,13 @@ clip = core.ffms2.Source(${video})
         "Edit the settings on the vsSetting.py with this format\nclip = core.std.Crop(clip, left=number, right=number,top = number,bottom = number)\n all numbers most be odd numbers\nIf you know what you are doing you can also add filters\nDon't set up the .set_output, and make all the filters to equal to clip\n"
       );
     }
-    consoe.log("Now is time to decide what x264 settings to use\n");
+    console.log("Now is time to decide what x264 settings to use\n");
     console.log("An analysis using the cropped screenshots will be done\n");
     const folderOfSS = path.join(
       currentFolder,
-      `Crop preview/Take number - ${counter}`
+      `jobCrop preview/Take number - ${cropTries}/screenshots`
     );
-    const analysis = await jimpAnalysis(folderOfSS, "cropped");
+    const analysis = await jimpAnalysis(folderOfSS, "Cropped");
     console.log(`Analysis result:\n treshhold = 5 \n${analysis}`);
     const testX264Settings = await askingConfirmation(
       "Given those results  do you know what settings to use? \nSend [Y] or [y] if you do \nSend other input if you don't\n"
@@ -309,99 +319,106 @@ clip = core.ffms2.Source(${video})
           "The number of frames on the video is too low so test were not run\n"
         );
       }
-      console.log(
-        "Now is time to look for the CRF settings  on the resolutions you want to encode on\n"
+    }
+    let confifrmEdittedx264 = false;
+    do {
+      confifrmEdittedx264 = await askingConfirmation(
+        "Once you finished editing press [Y]  or [y]"
       );
-      const Resolutions = [480, 576, 720, 1080];
-      let crfValues = [0, 0, 0, 0];
+    } while (!confifrmEdittedx264);
+
+    console.log(
+      "Now is time to look for the CRF settings  on the resolutions you want to encode on\n"
+    );
+    const Resolutions = [480, 576, 720, 1080];
+    let crfValues = [0, 0, 0, 0];
+    let i = 0;
+    for (const resolution of Resolutions) {
+      const confirmation = await askingConfirmation(
+        `Do you want To encode on ${resolution}p, send [y] or [Y] to confirm, any other letter to not\n`
+      );
+      if (confirmation) {
+        const Every = await askingNumber(
+          "Enter the number frames to skip for  cycle on the test script(it has to be an integer), if you use an invalid number or just press enter it will default to 3000\n",
+          3000
+        );
+        const Length = await askingNumber(
+          "Enter the number frames of each scene for the test script(it has to be an integer), if you use an invalid number or just press enter it will default to 50\n",
+          50
+        );
+        const Offset = await askingNumber(
+          "Enter the number of frames to offset from the start and end of the video those frames will be not taken for the test on the test script(it has to be an integer), if you use an invalid number or just press enter it will default to 10000\n",
+          10000
+        );
+
+        const crf = await testCRF({
+          video,
+          resolution,
+          Every,
+          Length,
+          Offset,
+          extraOptions,
+        });
+        crfValues[i] = crf;
+        i += 1;
+      }
+    }
+    console.log(
+      "Now that we finish all the test is time to start the encode\n"
+    );
+    const willYouChange = await askingConfirmation(
+      "If you want to encode on the ssame resolutions you ran the crf test press [y] or [Y] if not press another letter or key"
+    );
+    const vspipeLocation = path.join(currentFolder, `vsSetting.py`);
+    const x264SettingLocation = path.join(currentFolder, `x264-setting.txt`);
+    if (willYouChange) {
       let i = 0;
       for (const resolution of Resolutions) {
-        const confirmation = await askingConfirmation(
-          `Do you want To encode on ${resolution}p, send [y] or [Y] to confirm, any other letter to not\n`
+        const confirm = await askingConfirmation(
+          `Do you want to encode on ${resolution}\n Press [y] or [Y] if you do\n if you  don't press another letter or key`
         );
-        if (confirmation) {
-          const Every = await askingNumber(
-            "Enter the number frames to skip for  cycle on the test script(it has to be an integer), if you use an invalid number or just press enter it will default to 3000\n",
-            3000
-          );
-          const Length = await askingNumber(
-            "Enter the number frames of each scene for the test script(it has to be an integer), if you use an invalid number or just press enter it will default to 50\n",
-            50
-          );
-          const Offset = await askingNumber(
-            "Enter the number of frames to offset from the start and end of the video those frames will be not taken for the test on the test script(it has to be an integer), if you use an invalid number or just press enter it will default to 10000\n",
-            10000
-          );
 
-          const crf = await testCRF({
-            video,
-            resolution,
-            Every,
-            Length,
-            Offset,
-            extraOptions,
-          });
-          crfValues[i] = crf;
-          i += 1;
+        if (confirm) {
+          let vsPipe = fs.readFileSync(vspipeLocation, "utf8");
+          vsPipe += `
+ratio = clip.width/clip.height
+w = round(${resolution}*ratio/2)*2
+clip = core.resize.Spline36(clip,width=w,height=${resolution})
+clip.set_output()
+`;
+          fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
+          const x264SSetting = fs
+            .readFileSync(x264SettingLocation, "uft8")
+            .trim();
+          console.log(` . . . Encdoding ${resolution}\n`);
+          await exec(
+            `vspipe --y4m vs${resolution}Setting.py - | ${x264Setting} --crf ${crfValues[i]} `
+          );
         }
+        i += 1;
       }
-      console.log(
-        "Now that we finish all the test is time to start the encode\n"
-      );
-      const willYouChange = await askingConfirmation(
-        "If you want to encode on the ssame resolutions you ran the crf test press [y] or [Y] if not press another letter or key"
-      );
-      const vspipeLocation = path.join(currentFolder, `vsSetting.py`);
-      const x264SettingLocation = path.join(currentFolder, `x264-setting.txt`);
-      if (willYouChange) {
-        let i = 0;
-        for (const resolution of Resolutions) {
-          const confirm = await askingConfirmation(
-            `Do you want to encode on ${resolution}\n Press [y] or [Y] if you do\n if you  don't press another letter or key`
+    } else {
+      let i = 0;
+      for (const crf of crfValues) {
+        if (crf !== 0) {
+          const resolution = Resolutions[i];
+          let vsPipe = fs.readFileSync(vspipeLocation, "utf8");
+          vsPipe += `
+ratio = clip.width/clip.height
+w = round(${resolution}*ratio/2)*2
+clip = core.resize.Spline36(clip,width=w,height=${resolution})
+clip.set_output()
+`;
+          fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
+          const x264SSetting = fs
+            .readFileSync(x264SettingLocation, "uft8")
+            .trim();
+          console.log(` . . . Encdoding ${resolution}\n`);
+          await exec(
+            `vspipe --y4m vs${resolution}Setting.py - | ${x264Setting} --crf ${crf} `
           );
-
-          if (confirm) {
-            let vsPipe = fs.readFileSync(vspipeLocation, "utf8");
-            vsPipe += `
-ratio = clip.width/clip.height
-w = round(${resolution}*ratio/2)*2
-clip = core.resize.Spline36(clip,width=w,height=${resolution})
-clip.set_output()
-`;
-            fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
-            const x264SSetting = fs
-              .readFileSync(x264SettingLocation, "uft8")
-              .trim();
-            console.log(` . . . Encdoding ${resolution}\n`);
-            await exec(
-              `vspipe --y4m vs${resolution}Setting.py - | ${x264Setting} --crf ${crfValues[i]} `
-            );
-          }
-          i += 1;
         }
-      } else {
-        let i = 0;
-        for (const crf of crfValues) {
-          if (crf !== 0) {
-            const resolution = Resolutions[i];
-            let vsPipe = fs.readFileSync(vspipeLocation, "utf8");
-            vsPipe += `
-ratio = clip.width/clip.height
-w = round(${resolution}*ratio/2)*2
-clip = core.resize.Spline36(clip,width=w,height=${resolution})
-clip.set_output()
-`;
-            fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
-            const x264SSetting = fs
-              .readFileSync(x264SettingLocation, "uft8")
-              .trim();
-            console.log(` . . . Encdoding ${resolution}\n`);
-            await exec(
-              `vspipe --y4m vs${resolution}Setting.py - | ${x264Setting} --crf ${crf} `
-            );
-          }
-          i += 1;
-        }
+        i += 1;
       }
     }
   } catch (error) {
