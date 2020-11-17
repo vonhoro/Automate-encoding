@@ -24,7 +24,7 @@ extract.set_output()
 
     fs.writeFileSync("test.py", processFirstTest);
 
-    const { stdout, stderr } = await exec(`vspipe test.py --y4m - | ${test}`);
+    const { stdout, stderr } = await exec(`bin\\vspipe test.py --y4m - | ${test}`);
     // fs.unlinkSync("test.py");
     let log = `Setting Used = ${test} \n${stdout}\n${stderr}`;
     fs.writeFileSync(`./job${jobId}/${testFolder}/${testName}-log.txt`, log);

@@ -67,7 +67,7 @@ screenshots.set_output()
 
       console.log(`\nSetting up ${resolution} group\n`);
 
-      await exec(`vspipe ssPreview.py .`);
+      await exec(`bin\\vspipe ssPreview.py .`);
 
       // to create short clips to preview
     }

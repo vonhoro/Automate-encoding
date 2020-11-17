@@ -25,7 +25,7 @@ select.set_output()
     fs.writeFileSync("previewClips.py", pythonShortClipsScript);
 
     const { stdout, stderr } = await exec(
-      `vspipe previewClips.py --y4m - | x264 --demuxer y4m - --output clips/clip${resolution.toString()}.mkv`
+      `bin\\vspipe previewClips.py --y4m - | bin\\x264 --demuxer y4m - --output clips/clip${resolution.toString()}.mkv`
     );
 
     fs.unlinkSync("previewClips.py");

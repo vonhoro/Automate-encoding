@@ -36,7 +36,7 @@ extract.set_output()
     );
     newVideo = newVideo.replace(".mkv", "");
     const { stdout, stderr } = await exec(
-      `vspipe preview.py --y4m - | ${updatedx264Test}`
+      `bin\\vspipe preview.py --y4m - | ${updatedx264Test}`
     );
     let log = `Setting Used = ${updatedx264Test} \n${stdout}\n${stderr}`;
 

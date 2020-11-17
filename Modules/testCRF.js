@@ -78,7 +78,7 @@ select.set_output()
     let adjust = 0;
     console.log(`Beginning CRF calibration...\n`);
     do {
-      const testCommand = `vspipe --y4m testCRF.py - | ${x264Setting} --crf ${crf} `;
+      const testCommand = `bin\\vspipe --y4m testCRF.py - | ${x264Setting} --crf ${crf} `;
       console.log(`Starting x264 test for CRF=${crf}`);
 
       const { stdout, stderr } = await exec(testCommand);

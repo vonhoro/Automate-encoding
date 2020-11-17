@@ -48,7 +48,7 @@ screenshots.set_output()
  `;
 
     fs.writeFileSync("screenshots.py", screenShotsToAnalyze);
-    await exec(`vspipe screenshots.py .`);
+    await exec(`bin\\vspipe screenshots.py .`);
     fs.unlinkSync("screenshots.py");
     const Folder = path.join(
       currentFolder,

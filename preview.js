@@ -12,7 +12,7 @@ const {
 const { createClips } = require("./Modules/createClips.js");
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 
-const { getOSRUI, randomFrameDistribution } = require("./Modules/utils.js");
+const { getOSuri, randomFrameDistribution } = require("./Modules/utils.js");
 
 //Global controller
 
@@ -30,7 +30,7 @@ rl.question(
   "Put source video link \n Example:C:\\Users\\Admin\\Videos\\myvideo.mp4\n\n",
   async (videoSrc) => {
     //runs preview
-    const video = getOSRUI(videoSrc);
+    const video = getOSuri(videoSrc);
     await previewingScreenShots(video);
   }
 );

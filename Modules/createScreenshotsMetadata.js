@@ -85,7 +85,7 @@ screenshots.set_output()
 
       fs.writeFileSync("ssPreview.py", pythonScreenShotsScript);
 
-      await exec(`vspipe ssPreview.py .`);
+      await exec(`bin\\vspipe ssPreview.py .`);
 
       const Folder = path.join(
         currentFolder,

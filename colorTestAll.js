@@ -17,7 +17,7 @@ const {
   createScreenshotsMetadata,
 } = require("./Modules/createScreenshotsMetadata.js");
 
-const { getOSRUI, copyScreenshots } = require("./Modules/utils.js");
+const { getOSuri, copyScreenshots } = require("./Modules/utils.js");
 
 const { testx264Setting } = require("./Modules/testx264Setting.js");
 const { testVideo } = require("./Modules/testVideo.js");
@@ -35,7 +35,7 @@ rl.question(
     //runs preview
 
     const sourceFileName = path.win32.basename(videoSrc);
-    const video = getOSRUI(videoSrc);
+    const video = getOSuri(videoSrc);
     await previewingScreenShots("preview.py", video, sourceFileName);
     rl.close();
   }
@@ -97,7 +97,7 @@ async function previewingScreenShots(script, video, fileName) {
       .split(" ")
       .filter((setting) => setting.match(/.mkv$/))[0];
     let newVideoSrc = path.join(currentFolder, newVideo);
-    newVideoSrc = getOSRUI(newVideoSrc);
+    newVideoSrc = getOSuri(newVideoSrc);
     newVideo = "noip1";
     for (const setting of x264Test) {
       let oldFolder;
@@ -144,7 +144,7 @@ async function previewingScreenShots(script, video, fileName) {
           setting.name
         );
         newVideo = newData.newVideo;
-        newVideoSrc = getOSRUI(newData.newVideoSrc);
+        newVideoSrc = getOSuri(newData.newVideoSrc);
       }
       counter += 1;
     }

@@ -9,7 +9,7 @@ const encode = async (video) => {
   try {
     const x264Setting = fs.readFileSync("./x264 Setting.txt", "utf8");
     const { stdout, stderr } = await exec(
-      `vspipe "vspipe final setting.py" --y4m - | "${x264Setting}"`
+      `bin\\vspipe "bin\\vspipe final setting.py" --y4m - | "${x264Setting}"`
     );
 
     console.log(a);

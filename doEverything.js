@@ -33,7 +33,7 @@ const { extractTracks } = require("./Modules/extractTracks.js");
 const { mergeEncoded } = require("./Modules/mergeEncoded.js");
 const {
   copyScreenshots,
-  getOSRUI,
+  getOSuri,
   randomFrame,
   randomFrameDistribution,
   renameScreenshots,
@@ -46,7 +46,7 @@ const rl = readline.createInterface({
 
 const runTests = async (video, extraOptions) => {
   try {
-    const firstx264Test = `x264 --demuxer y4m  --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --pass 1 --bitrate 8000 --output job${jobId}/ip-ratio/noip1.mkv -`;
+    const firstx264Test = `bin\\x264 --demuxer y4m  --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --pass 1 --bitrate 8000 --output job${jobId}/ip-ratio/noip1.mkv -`;
     console.log(`Current Job is job${jobId}\n`);
 
     if (!fs.existsSync(`job${jobId}`)) {
@@ -107,7 +107,7 @@ const runTests = async (video, extraOptions) => {
       .split(" ")
       .filter((setting) => setting.match(/.mkv$/))[0];
     let newVideoSrc = path.join(currentFolder, newVideo);
-    newVideoSrc = getOSRUI(newVideoSrc);
+    newVideoSrc = getOSuri(newVideoSrc);
     newVideo = "noip1";
     for (const setting of x264Test) {
       let oldFolder;
@@ -157,7 +157,7 @@ const runTests = async (video, extraOptions) => {
           extraOptions,
         });
         newVideo = newData.newVideo;
-        newVideoSrc = getOSRUI(newData.newVideoSrc);
+        newVideoSrc = getOSuri(newData.newVideoSrc);
       }
       counter += 1;
     }
@@ -193,7 +193,7 @@ const askingForVideo = () => {
     rl.question(
       "Enter the video Link (Only mkv videos will work) \nExample: c:\\users\\videos\\my video.mkv\n ",
       async (videoLink) => {
-        const video = getOSRUI(videoLink);
+        const video = getOSuri(videoLink);
         resolve(video);
       }
     )
@@ -296,7 +296,7 @@ clip = core.ffms2.Source(${video})
     const testX264Settings = await askingConfirmation(
       "Given those results  do you know what settings to use? \nSend [Y] or [y] if you do \nSend other input if you don't\n"
     );
-    const x264SettingFormat = `x264 --demuxer y4m  --output encoded.mkv - Add Your flags here`;
+    const x264SettingFormat = `bin\\x264 --demuxer y4m  --output encoded.mkv - Add Your flags here`;
     fs.writeFileSync(`x264-setting.txt`, x264SettingFormat);
     if (testX264Settings) {
       console.log(
@@ -394,7 +394,7 @@ clip.set_output()
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
-            `vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crfValues[i]} `
+            `bin\\vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crfValues[i]} `
           );
         }
         i += 1;
