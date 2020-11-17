@@ -273,7 +273,7 @@ clip = core.ffms2.Source(${video})
     const useSetting = await askingConfirmation(
       "Do you want to use those Settings ? \nSend [Y] or [y] if you are\nSend other letter if you are not\n"
     );
-    fs.writeFileSync("vsSetting.py", vsSetting);
+
     if (useSetting) {
       vsSetting += extraOptions;
     } else {
@@ -284,6 +284,7 @@ clip = core.ffms2.Source(${video})
         "Edit the settings on the vsSetting.py with this format\nclip = core.std.Crop(clip, left=number, right=number,top = number,bottom = number)\n all numbers most be odd numbers\nIf you know what you are doing you can also add filters\nDon't set up the .set_output, and make all the filters to equal to clip\n"
       );
     }
+    fs.writeFileSync("vsSetting.py", vsSetting);
     console.log("Now is time to decide what x264 settings to use\n");
     console.log("An analysis using the cropped screenshots will be done\n");
     const folderOfSS = path.join(
@@ -367,7 +368,7 @@ clip = core.ffms2.Source(${video})
       "Now that we finish all the test is time to start the encode\n"
     );
     const willYouChange = await askingConfirmation(
-      "If you want to encode on the ssame resolutions you ran the crf test press [y] or [Y] if not press another letter or key"
+      "If you want to encode on the ssame resolutions you ran the crf test press [y] or [Y] if not press another letter or key\n"
     );
     const vspipeLocation = path.join(currentFolder, `vsSetting.py`);
     const x264SettingLocation = path.join(currentFolder, `x264-setting.txt`);
@@ -375,7 +376,7 @@ clip = core.ffms2.Source(${video})
       let i = 0;
       for (const resolution of Resolutions) {
         const confirm = await askingConfirmation(
-          `Do you want to encode on ${resolution}\n Press [y] or [Y] if you do\n if you  don't press another letter or key`
+          `Do you want to encode on ${resolution}\n Press [y] or [Y] if you do\n if you  don't press another letter or key\n`
         );
 
         if (confirm) {
@@ -388,11 +389,12 @@ clip.set_output()
 `;
           fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
           const x264SSetting = fs
-            .readFileSync(x264SettingLocation, "uft8")
+            .readFileSync(x264SettingLocation, "utf8")
+			.replace("encoded.mkv", `encoded${resolution}.mkv`)
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
-            `vspipe --y4m vs${resolution}Setting.py - | ${x264Setting} --crf ${crfValues[i]} `
+            `vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crfValues[i]} `
           );
         }
         i += 1;
@@ -411,11 +413,12 @@ clip.set_output()
 `;
           fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
           const x264SSetting = fs
-            .readFileSync(x264SettingLocation, "uft8")
+            .readFileSync(x264SettingLocation, "utf8")
+			.replace("encoded.mkv", `encoded${resolution}.mkv`);
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
-            `vspipe --y4m vs${resolution}Setting.py - | ${x264Setting} --crf ${crf} `
+            `vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crf} `
           );
         }
         i += 1;

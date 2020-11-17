@@ -12,7 +12,7 @@ let counter = 1;
 // Modules
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
-const { getOSRUI, randomFrameDistribution } = require("./Modules/utils.js");
+const { getOSuri, randomFrameDistribution } = require("./Modules/utils.js");
 
 const {
   cropVertically,
@@ -26,7 +26,7 @@ const rl = readline.createInterface({
 rl.question(
   "Put source video link \n Example:C:\\Users\\Admin\\Videos\\myvideo.mp4\n",
   async (videoSrc) => {
-    const video = getOSRUI(videoSrc);
+    const video = getOSuri(videoSrc);
     await previewingScreenShots(video);
 
     rl.close();

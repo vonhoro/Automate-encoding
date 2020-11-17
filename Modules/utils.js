@@ -5,7 +5,7 @@ const randomFrame = (frames) => {
   return Math.floor(Math.random() * frames) + 1;
 };
 
-const getOSRUI = (videoSrc) => {
+const getOSuri = (videoSrc) => {
   if (videoSrc.match(/^\w:\\/)) {
     return `r"${videoSrc}"`;
   } else {
@@ -67,7 +67,7 @@ const copyScreenshots = (ogFolder, destiniyFolder, filter) => {
 };
 module.exports = {
   copyScreenshots,
-  getOSRUI,
+  getOSuri,
   randomFrame,
   randomFrameDistribution,
   renameScreenshots,
