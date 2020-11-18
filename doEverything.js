@@ -414,8 +414,8 @@ clip.set_output()
           fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
           const x264SSetting = fs
             .readFileSync(x264SettingLocation, "utf8")
-			.replace("encoded.mkv", `encoded${resolution}.mkv`);
-            .trim();
+			.replace("encoded.mkv", `encoded${resolution}.mkv`)
+          .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
             `vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crf} `
