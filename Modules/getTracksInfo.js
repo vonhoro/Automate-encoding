@@ -1,9 +1,9 @@
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const { isVideoTrack, isAudioTrack } = require("./checkTrackType.js");
-const getTracksInfo = async (video) => {
+const getTracksInfo = async (media) => {
   try {
-    const { stdout, stderr } = await exec(`mediainfo --Output=JSON "${video}"`);
+    const { stdout, stderr } = await exec(`mediainfo --Output=JSON "${media}"`);
     const tracks = JSON.parse(stdout).media.track;
     let audioTracks = [];
     let videoTracks = [];
@@ -15,8 +15,9 @@ const getTracksInfo = async (video) => {
         videoTracks = [...videoTracks, track];
       }
     }
+    if(videoTracks) {
     const srcHeight = videoTracks[0].Height;
-
+    }
     return { videoTracks, audioTracks, srcHeight };
   } catch (error) {
     console.log(error);

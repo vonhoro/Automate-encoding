@@ -78,7 +78,7 @@ clip = core.resize.Bicubic(clip, format=vs.RGB24, matrix_in_s="709")
 clip = core.text.Text(clip,"${fileName}", alignment=8)
 ${screenshotsToTake}
 ${screenshotsCombined}
-screenshots = core.imwri.Write(frames,imgformat="PNG",filename="job${jobId}/${folder}/screenshots/metadata-${test}-frame-%d.png",firstnum=1, overwrite=True)
+screenshots = core.imwri.Write(frames,imgformat="PNG",filename="job${jobId}/${folder}/screenshots/-frame-metadata-${test}%d.png",firstnum=1, overwrite=True)
 screenshots.set_output()
 `;
       }

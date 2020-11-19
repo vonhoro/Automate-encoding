@@ -34,11 +34,11 @@ const renameScreenshots = (folder, filter, frames, isMetadata) => {
   const screenshots = isMetadata
     ? screenshotsFolder
         .filter((filename) => filename.includes(filter))
-        .filter((filename) => filename.match(/^metadata/))
+        .filter((filename) => filename.match(/metadata/))
         .filter((format) => format.match(/.png$/))
     : screenshotsFolder
         .filter((filename) => filename.includes(filter))
-        .filter((filename) => !filename.match(/^metadata/))
+        .filter((filename) => !filename.match(/metadata/))
         .filter((format) => format.match(/.png$/));
 
   let i = 0;

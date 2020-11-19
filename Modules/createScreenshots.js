@@ -43,7 +43,7 @@ clip = core.resize.Bicubic(clip, format=vs.RGB24, matrix_in_s="709")
 ${extraSettings}
 ${screenshotsToTake}
 ${screenshotsCombined}
-screenshots = core.imwri.Write(frames,imgformat="PNG",filename="job${jobId}/${folder}/screenshots/${test}-frame-%d.png",firstnum=1, overwrite=True)
+screenshots = core.imwri.Write(frames,imgformat="PNG",filename="job${jobId}/${folder}/screenshots/-frame-${test}%d.png",firstnum=1, overwrite=True)
 screenshots.set_output()
  `;
 
