@@ -4,10 +4,6 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-// ptpimg_uploader -k f7d7f0e9-2f23-4147-bba7-c0ea92d28403
-// Modules
-// C:\Users\Dan\Downloads\Anime\Saekano\Season1\[Mysteria] Saenai Heroine no Sodatekata - S01E00 (BD 1080p HEVC FLAC) [9C9BF852].mkv
-// C:\Users\Dan\Downloads\Anime\Saekano\Season1\[Mysteria] Saenai Heroine no Sodatekata - S01E09 (BD 1080p HEVC FLAC) [DA916DB5].mkv
 const {
   currentFolder,
   getOSuri,
@@ -28,44 +24,86 @@ const {
   closeQuestionInterface,
 } = require("./Modules/questionsInterfaces.js");
 
-// const Upload = async (picture) => {
-// try {
-// const { stdout } = await exec(
-// `ptpimg_uploader -k f7d7f0e9-2f23-4147-bba7-c0ea92d28403 -b "${picture}"`
-// );
+const Upload = async (picture, key) => {
+  try {
+    const { stdout } = await exec(`ptpimg_uploader -k ${key} -b "${picture}"`);
 
-// return stdout;
-// } catch (err) {
-// return "";
-// }
-// };
+    return stdout;
+  } catch (err) {
+    return "";
+  }
+};
 
-// const toUploadimg = async (folder, pictures) => {
-// let uploadedPicture = [];
-// for (const picture of pictures) {
-// const input = path.join(folder, picture);
+const toUploadimg = async (folder, pictures) => {
+  let uploadedPicture = [];
+  for (const picture of pictures) {
+    const input = path.join(folder, picture);
 
-// let uploadedImgurl = "";
-// do {
-// uploadedImgurl = await Upload(input);
+    let uploadedImgurl = "";
+    do {
+      uploadedImgurl = await Upload(input);
 
-// if (uploadedImgurl === "") {
-// console.log("An error ocurred, waiting 2 seconds before retrying");
-// await new Promise((r) => setTimeout(r, 2000));
-// }
-// } while (uploadedImgurl === "");
+      if (uploadedImgurl === "") {
+        console.log("An error ocurred, waiting 2 seconds before retrying");
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    } while (uploadedImgurl === "");
 
-// uploadedPicture = [...uploadedPicture, uploadedImgurl];
-// }
+    uploadedPicture = [...uploadedPicture, uploadedImgurl];
+  }
 
-// return uploadedPicture;
-// };
+  return uploadedPicture;
+};
+
+const makeAdjustments = async ({
+  video,
+  positions,
+  outputFolder,
+  name,
+  ssPath,
+}) => {
+  try {
+    const adjustment = await askingInteger(
+      "Input the number of frames you want to add or  subtract from the encoded screen so they match \nExamples: \nif the frames are 2100 and 2380, inputting -10 will take screenshots of frames 2090 and 2370\nif you input 20 they will be 2120 and 2400 \n"
+    );
+    console.log("The adjustment will be:", adjustment);
+    let adjustedPositions = positions.map((frame) => frame + adjustment);
+    const ssToDelete = fs.readdirSync(ssPath).filter((fileName) => {
+      if (fileName.includes(name)) {
+        return fileName;
+      }
+    });
+    for (const ss of ssToDelete) {
+      const fullPath = path.join(ssPath, ss);
+      fs.unlinkSync(fullPath);
+    }
+
+    await createScreenshotsMetadata({
+      video,
+      outputFolder,
+      name,
+      positions: adjustedPositions,
+    });
+    const liked = await askingConfirmation(
+      "Do you like the resutls? [Y]es [N]o ?\n"
+    );
+    if (liked) return;
+    await makeAdjustments({
+      video,
+      positions: adjustedPositions,
+      outputFolder,
+      name,
+      ssPath,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 const createComparitionSceenshots = async ({
   ogVideo,
   encodedVideo,
-  ogPositions,
-  encodedPositions,
+  positions,
   outputFolder,
 }) => {
   try {
@@ -73,14 +111,14 @@ const createComparitionSceenshots = async ({
       video: ogVideo,
       outputFolder,
       name: "Source",
-      positions: ogPositions,
+      positions,
     });
 
     await createScreenshotsMetadata({
       video: encodedVideo,
       outputFolder,
       name: "Encoded",
-      positions: encodedPositions,
+      positions,
     });
   } catch (err) {
     console.log(err);
@@ -142,74 +180,96 @@ SCREENSHOTS`;
     );
 
     let liked = false;
+    let positions = [];
     do {
       fs.rmdirSync(path.join(currentFolder(), "screenshots"), {
         recursive: true,
       });
-      const positions = randomFrameDistribution(
-        numberOfFrames,
-        numberOfScreenshots
-      );
+      positions = randomFrameDistribution(numberOfFrames, numberOfScreenshots);
       await createComparitionSceenshots({
         ogVideo,
         encodedVideo,
         outputFolder: currentFolder(),
-        ogPositions: positions,
-        encodedPositions: positions,
+        positions,
       });
       liked = await askingConfirmation(
-        "Do you liked the screenshots taken at the screenshot folder [Y/N] \nif you don't new ones Will be created\n"
+        "Do you liked the comparition screenshots taken at the screenshot folder [Y/N] \nif you don't new ones Will be created\n"
       );
     } while (!liked);
-    const ssPath = path.join(currentFolder, "screenshots");
+    const ssPath = path.join(currentFolder(), "screenshots");
+
+    const wantToAdjust = await askingConfirmation(
+      "Do you want do a small adjusment of the frames taken so they match perfectly ? [Y]es [N]o?\n"
+    );
+    if (wantToAdjust) {
+      await makeAdjustments({
+        video: ogVideo,
+        positions,
+        outputFolder: currentFolder(),
+        name: "Encoded",
+        ssPath,
+      });
+    }
+    let redo = true;
+    do {
+      const ss = fs.readdirSync(ssPath);
+      const toShow = ss.filter((name) => name.match(/toShow/));
+
+      if (toShow.length > 0) {
+        for (const screensshot of toShow) {
+          const fullPath = path.join(ssPath, screensshot);
+          fs.unlinkSync(fullPath);
+        }
+      }
+      const positions = randomFrameDistribution(numberOfFrames, 4);
+
+      await createScreenshots({
+        video: encodedVideo,
+        outputFolder: currentFolder(),
+        name: "toShow",
+        positions,
+      });
+      redo = await askingConfirmation(
+        "Do you want to redo the screenshots to show? [Y]es/[N]o\n"
+      );
+    } while (redo);
+
     const ss = fs.readdirSync(ssPath);
     const source = ss.filter((name) => name.match(/SourceMetadata/));
+
     const encoded = ss.filter((name) => name.match(/EncodedMetadata/));
 
-    const adjustment = await askingInteger(
-      "Input the number of frames you want to add or  subtract from the encoded screen so they match \nExamples: \nif the frames are 2100 and 2380, inputting -10 will take screenshots of frames 2090 and 2370\nif you input 20 they will be 2120 and 2400 \n"
-    );
-    console.log("The adjustment will be:", adjustment);
+    const toShow = ss.filter((name) => name.match(/toShow/));
+    const apiKey = await askingText(
+      "Tenter your ptpimg.me api key \nExample: 43fe0fee-f935-4084-8a38-3e632b0be68c\n"
+    ).trim();
+    const encodedUploaded = await toUploadimg(ssPath, encoded, apiKey);
+    const sourceUploaded = await toUploadimg(ssPath, source, apiKey);
+    const toShowUploaded = await toUploadimg(ssPath, toShow, apiKey);
+    compare = "";
+    for (let i = 0; i < encodedUploaded.length; i += 1) {
+      compare += `${encodedUploaded[i]
+        .replace("\n", "")
+        .replace("\r", "")} ${sourceUploaded[i]
+        .replace("\n", "")
+        .replace("\r", "")}\n`;
+    }
+    let SCREENSHOTS = "";
+    for (const picture of toShowUploaded) {
+      SCREENSHOTS += `${picture.replace("\n", "").replace("\r", "")}\n`;
+    }
 
-    // const otherPositions = randomFrameDistribution(numberOfFrames, 4);
-    // await createScreenshots({
-    // video: encodedVideo,
-    // outputFolder: currentFolder,
-    // name: "Encoded",
-    // positions: otherPositions,
-    // });
+    formatOutput = formatOutput
+      .replace("COMPARE", compare)
+      .replace("SCREENSHOTS", SCREENSHOTS);
 
-    // const toShow = ss.filter((name) => name.match(/Encoded.png/));
+    fs.writeFileSync("templateBBcode.txt", formatOutput);
 
-    // const doYouLike
+    formatOutput = formatOutput
+      .replace(/\[img\]/g, "")
+      .replace(/\[\/img\]/g, "");
+    fs.writeFileSync("template.txt", formatOutput);
 
-    // const encodedUploaded = await toUploadimg(ssPath, encoded);
-    // const sourceUploaded = await toUploadimg(ssPath, source);
-    // const toShowUploaded = await toUploadimg(ssPath, toShow);
-    // compare = "";
-    // for (let i = 0; i < encodedUploaded.length; i += 1) {
-    // compare += `${encodedUploaded[i]
-    // .replace("\n", "")
-    // .replace("\r", "")} ${sourceUploaded[i]
-    // .replace("\n", "")
-    // .replace("\r", "")}\n`;
-    // }
-    // let SCREENSHOTS = "";
-    // for (const picture of toShowUploaded) {
-    // SCREENSHOTS += `${picture.replace("\n", "").replace("\r", "")}\n`;
-    // }
-
-    // formatOutput = formatOutput
-    // .replace("COMPARE", compare)
-    // .replace("SCREENSHOTS", SCREENSHOTS);
-
-    // fs.writeFileSync("templateBBcode.txt", formatOutput);
-
-    // formatOutput = formatOutput
-    // .replace(/\[img\]/g, "")
-    // .replace(/\[\/img\]/g, "");
-    // fs.writeFileSync("template.txt", formatOutput);
-    // rl.close();
     closeQuestionInterface();
   } catch (err) {
     console.log(err);
