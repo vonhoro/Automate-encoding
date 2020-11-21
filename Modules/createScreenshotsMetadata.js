@@ -5,15 +5,14 @@ const fs = require("fs");
 const process = require("process");
 const currentFolder = process.cwd();
 
-const { renameScreenshots } = require("./utils.js");
+const { getOSuri, renameScreenshots } = require("./utils.js");
 const createScreenshotsMetadata = async ({
+  extraOptions,
   video,
-  jobId,
-  folder,
-  test,
+  outputFolder,
+  name,
   positions,
   resolutions,
-  extraOptions,
 }) => {
   try {
     //Get information about the video
@@ -22,24 +21,22 @@ const createScreenshotsMetadata = async ({
       ? path.win32.basename(video).replace(/"$/, "")
       : path.win32.basename(video);
 
-    for (const resolution of resolutions) {
-      //creates resolition folder if it doesnt exists
-      let screenshotsToTake = "";
-      let screenshotsCombined = "frames =";
-      for (let i = 0; i < positions.length; i += 1) {
-        screenshotsToTake += `ss${i + 1} = clip[${positions[i]}]
+    let screenshotsToTake = "";
+    let screenshotsCombined = "frames =";
+    for (let i = 0; i < positions.length; i += 1) {
+      screenshotsToTake += `ss${i + 1} = clip[${positions[i]}]
 ss${i + 1} = core.text.Text(ss${i + 1},"\\nFrame ${
-          positions[i]
-        } of " + str(clip.num_frames),alignment=8)
+        positions[i]
+      } of " + str(clip.num_frames),alignment=8)
 ss${i + 1} = core.text.ClipInfo(ss${i + 1}, alignment=7)
 `;
-        screenshotsCombined += ` ss${i + 1} +`;
-      }
-      screenshotsCombined = screenshotsCombined.slice(0, -1);
+      screenshotsCombined += ` ss${i + 1} +`;
+    }
+    screenshotsCombined = screenshotsCombined.slice(0, -1);
+    let pythonScreenShotsScript;
 
-      //for the screen shots
-      let pythonScreenShotsScript;
-      if (!jobId) {
+    if (resolutions) {
+      for (const resolution of resolutions) {
         if (!fs.existsSync(resolution.toString())) {
           fs.mkdirSync(resolution.toString());
         }
@@ -58,18 +55,21 @@ ${screenshotsCombined}
 screenshots = core.imwri.Write(frames,imgformat="PNG",filename="/${resolution}/pictpreview%d.png",firstnum=1, overwrite=True)
 screenshots.set_output()
 `;
-      } else {
-        if (!fs.existsSync(`job${jobId}`)) {
-          fs.mkdirSync(`job${jobId}`);
-        }
-        if (!fs.existsSync(`job${jobId}/${folder}`)) {
-          fs.mkdirSync(`job${jobId}/${folder}`);
-        }
-        if (!fs.existsSync(`job${jobId}/${folder}/screenshots`)) {
-          fs.mkdirSync(`job${jobId}/${folder}/screenshots`);
-        }
+      }
+    } else {
+      const screenshotOutputFolder = path.join(outputFolder, `screenshots`);
+      if (!fs.existsSync(screenshotOutputFolder)) {
+        fs.mkdirSync(screenshotOutputFolder);
+      }
+      let output = path.join(
+        screenshotOutputFolder,
+        `-frame-${name}Metadata-%d.png`
+      );
+      output = getOSuri(output);
 
-        pythonScreenShotsScript = `
+      const extraSettings = extraOptions ? extraOptions : "";
+
+      pythonScreenShotsScript = `
 import vapoursynth as vs
 core = vs.get_core()
 clip = core.ffms2.Source(${video})
@@ -78,22 +78,17 @@ clip = core.resize.Bicubic(clip, format=vs.RGB24, matrix_in_s="709")
 clip = core.text.Text(clip,"${fileName}", alignment=8)
 ${screenshotsToTake}
 ${screenshotsCombined}
-screenshots = core.imwri.Write(frames,imgformat="PNG",filename="job${jobId}/${folder}/screenshots/-frame-metadata-${test}%d.png",firstnum=1, overwrite=True)
+screenshots = core.imwri.Write(frames,imgformat="PNG",filename=(${output}),firstnum=1, overwrite=True)
 screenshots.set_output()
 `;
-      }
 
       fs.writeFileSync("ssPreview.py", pythonScreenShotsScript);
 
       await exec(`bin\\vspipe ssPreview.py .`);
 
-      const Folder = path.join(
-        currentFolder,
-        `job${jobId}/${folder}/screenshots`
-      );
-      renameScreenshots(Folder, test, positions, true);
+      fs.unlinkSync("ssPreview.py");
 
-      // fs.unlinkSync("ssPreview.py");
+      renameScreenshots(screenshotOutputFolder, name, positions, true);
     }
   } catch (error) {
     console.log(error);

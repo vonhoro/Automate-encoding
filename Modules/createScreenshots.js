@@ -4,28 +4,26 @@ const exec = util.promisify(require("child_process").exec);
 const fs = require("fs");
 const process = require("process");
 const currentFolder = process.cwd();
+
 //Modules
 
-const { renameScreenshots } = require("./utils.js");
+const { getOSuri, renameScreenshots } = require("./utils.js");
 const createScreenshots = async ({
+  extraOptions,
   video,
-  jobId,
-  folder,
-  test,
+  outputFolder,
+  name,
   positions,
   resolutions,
-  extraOptions,
 }) => {
   try {
-    if (!fs.existsSync(`job${jobId}`)) {
-      fs.mkdirSync(`./job${jobId}`);
+    const screenshotOutputFolder = path.join(outputFolder, `screenshots`);
+    if (!fs.existsSync(screenshotOutputFolder)) {
+      fs.mkdirSync(screenshotOutputFolder);
     }
-    if (!fs.existsSync(`./job${jobId}/${folder}`)) {
-      fs.mkdirSync(`./job${jobId}/${folder}`);
-    }
-    if (!fs.existsSync(`job${jobId}/${folder}/screenshots`)) {
-      fs.mkdirSync(`job${jobId}/${folder}/screenshots`);
-    }
+    let output = path.join(screenshotOutputFolder, `-frame-${name}-%d.png`);
+    output = getOSuri(output);
+
     const extraSettings = extraOptions ? extraOptions : "";
 
     let screenshotsToTake = "";
@@ -43,18 +41,15 @@ clip = core.resize.Bicubic(clip, format=vs.RGB24, matrix_in_s="709")
 ${extraSettings}
 ${screenshotsToTake}
 ${screenshotsCombined}
-screenshots = core.imwri.Write(frames,imgformat="PNG",filename="job${jobId}/${folder}/screenshots/-frame-${test}%d.png",firstnum=1, overwrite=True)
+screenshots = core.imwri.Write(frames,imgformat="PNG",filename=(${output}),firstnum=1, overwrite=True)
 screenshots.set_output()
  `;
 
     fs.writeFileSync("screenshots.py", screenShotsToAnalyze);
     await exec(`bin\\vspipe screenshots.py .`);
     fs.unlinkSync("screenshots.py");
-    const Folder = path.join(
-      currentFolder,
-      `job${jobId}/${folder}/screenshots`
-    );
-    renameScreenshots(Folder, test, positions, false);
+
+    renameScreenshots(screenshotOutputFolder, name, positions, false);
   } catch (err) {
     console.log(err);
   }

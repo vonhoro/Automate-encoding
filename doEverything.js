@@ -303,6 +303,9 @@ clip = core.ffms2.Source(${video})
         `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"`
       );
     } else {
+       
+      const p2pTemplate = await askingConfirmation("Do you want to use p2p templated x264 settings y/n \n") 
+       
       console.log(
         "We are going to start a large setting analisys, and it will take some time, if Your video has less than 100000frames this will be skipped\n"
       );

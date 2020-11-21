@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-
+const process = require("process");
 const randomFrame = (frames) => {
   return Math.floor(Math.random() * frames) + 1;
 };
@@ -31,20 +31,31 @@ const randomFrameDistribution = (numberOfFrames, numberOfScreenhots) => {
 
 const renameScreenshots = (folder, filter, frames, isMetadata) => {
   const screenshotsFolder = fs.readdirSync(folder);
+
   const screenshots = isMetadata
     ? screenshotsFolder
         .filter((filename) => filename.includes(filter))
-        .filter((filename) => filename.match(/metadata/))
+        .filter((filename) => filename.match(/Metadata/))
         .filter((format) => format.match(/.png$/))
     : screenshotsFolder
         .filter((filename) => filename.includes(filter))
-        .filter((filename) => !filename.match(/metadata/))
+        .filter((filename) => !filename.match(/Metadata/))
         .filter((format) => format.match(/.png$/));
+
+  const sortedScreenshots = screenshots.sort((a, b) => {
+    const numberALocation = a.lastIndexOf("-") + 1;
+    const numberA = parseInt(a.slice(numberALocation).replace(".png", ""));
+    const numberBLocation = b.lastIndexOf("-") + 1;
+    const numberB = parseInt(b.slice(numberBLocation).replace(".png", ""));
+    return numberA - numberB;
+  });
 
   let i = 0;
   for (const frame of frames) {
-    const ogName = path.join(folder, screenshots[i]);
-    const newScreenshot = screenshots[i].replace("-frame-", `-${frame}-`);
+    const ogName = path.join(folder, sortedScreenshots[i]);
+    const newScreenshot = sortedScreenshots[i]
+      .replace("-frame-", `${frame}`)
+      .replace(/-\d+.png/, ".png");
     const newName = path.join(folder, newScreenshot);
     fs.renameSync(ogName, newName);
     i += 1;
@@ -65,8 +76,12 @@ const copyScreenshots = (ogFolder, destiniyFolder, filter) => {
   }
   return;
 };
+
+const currentFolder = () => process.cwd();
+
 module.exports = {
   copyScreenshots,
+  currentFolder,
   getOSuri,
   randomFrame,
   randomFrameDistribution,
