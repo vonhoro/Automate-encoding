@@ -4,13 +4,10 @@ const fs = require("fs");
 const path = require("path");
 const process = require("process");
 const readline = require("readline");
-const crypto = require("crypto");
-const jobId = crypto.randomBytes(4).toString("hex");
-let counter = 0;
 let cropTries = 1;
 const currentFolder = process.cwd();
 
-// Modules    
+// Modules
 
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
@@ -38,118 +35,11 @@ const {
   randomFrameDistribution,
   renameScreenshots,
 } = require("./Modules/Utils.js");
-
+const { dox264Tests } = require("./Modules/dox264Tests.js");
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
-
-const runTests = async (video, extraOptions) => {
-  try {
-    const firstx264Test = `bin\\x264 --demuxer y4m  --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --pass 1 --bitrate 8000 --output job${jobId}/ip-ratio/noip1.mkv -`;
-    console.log(`Current Job is job${jobId}\n`);
-    const sourceFolder = path.join(currentFolder,`job${jobId}/source`)
-
-    if (!fs.existsSync(sourceFolder)) {
-      fs.mkdirSync(sourceFolder,{recursive:true});
-    }
-    await createScreenshotsMetadata({
-      video,
-      outputFolder:sourceFolder,
-      name: "Source",
-      positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
-      extraOptions,
-    });
-
-    //creates Screenshot to analzye from source
-
-    await createScreenshots({
-      video,
-      outputFolder:sourceFolder,
-      name: "Source",
-      positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
-      extraOptions,
-    });
-    const ipratioFolder = path.join(currentFolder,`job${jobId}/ip-ratio/screenshots`)
-    if (!fs.existsSync(ipratioFolder)) {
-      fs.mkdirSync(ipratioFolder,{recursive:true});
-    }
-      const sourceSsPath = path.join(sourceFolder,`screenshots`
-    );
- 
-    copyScreenshots(sourceSsPath, ipratioFolder, "Source");
-    // analyze the screen shots from source
-
-    await jimpAnalysis(sourceSsPath, "Source");
-
-    await testx264Setting({
-      video,
-      jobId,
-      test: firstx264Test,
-      testName: "noip1",
-      testFolder: "ip-ratio",
-      extraOptions,
-    });
-
-    let newVideo = firstx264Test
-      .split(" ")
-      .filter((setting) => setting.match(/.mkv$/))[0];
-    let newVideoSrc = path.join(currentFolder, newVideo);
-    newVideoSrc = getOSuri(newVideoSrc);
-    newVideo = "noip1";
-    for (const setting of x264Test) {
-      let oldFolder;
-
-      for (const test of setting.test) {
-         let testFolder = path.join(currentFolder,`job${jobId}/${setting.name}`)
-        if (!fs.existsSync(testFolder)) {
-          fs.mkdirSync(`job${jobId}/${setting.name}`);
-         
-          fs.mkdirSync(path.join(testFolder,`screenshots`),{recursive:true});
-          const sourceSsDestination = path.join(
-            currentFolder,
-            `job${jobId}/${setting.name}/screenshots`
-          );
-          copyScreenshots(sourceSsPath, sourceSsDestination, "source");
-          testFolder = path.join(currentFolder,`job${jobId}/${x264Test[counter - 1].name}`);
-        } 
-        await createScreenshots({
-          video: newVideoSrc,
-          outputFolder:testFolder,
-          name: newVideo,
-          positions: [30, 90, 150, 210, 270, 330, 390],
-          extraOptions,
-        });
-        await createScreenshotsMetadata({
-          video: newVideoSrc,
-          outputFolder:testFolder,
-          name: newVideo,
-          positions: [30, 90, 150, 210, 270, 330, 390],
-          extraOptions,
-        });
-
-        const ssPath = path.join(testFolder,'screenshots'
-        );
-        await jimpAnalysis(ssPath, newVideo);
-        const newData = await testVideo({
-          currentFolder,
-          video,
-          jobId,
-          test,
-          name: setting.name,
-          extraOptions,
-        });
-        newVideo = newData.newVideo;
-        newVideoSrc = getOSuri(newData.newVideoSrc);
-      }
-      counter += 1;
-    }
-
-    return;
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 const askingTitle = () => {
   return new Promise((resolve, reject) =>
@@ -215,19 +105,25 @@ clip = core.ffms2.Source(${video})
       "Enter the number of Sceenshots you want for the crop test(it has to be an integer), if you use an invalid number or just press enter it will default to 15\n",
       15
     );
-    console.log(numberOfScreenshots);
-    const { numberOfFrames } = await getVideoInfo(video);
+    console.log(numberOfScreenshots, " Screenshots will be made\n");
+    const { numberOfFrames, sourceHeight, FPSNumber } = await getVideoInfo(
+      video
+    );
+    const fps = Math.round(FPSNumber);
     const positions = randomFrameDistribution(
       numberOfFrames,
       numberOfScreenshots
     );
-    const cropOutput = path.join(currentFolder,`Crop preview/Take number - ${cropTries}`)
-      if (!fs.existsSync(cropOutput)) {
-      fs.mkdirSync(cropOutput,{recursive:true});
+    const cropOutput = path.join(
+      currentFolder,
+      `Crop preview/Take number - ${cropTries}`
+    );
+    if (!fs.existsSync(cropOutput)) {
+      fs.mkdirSync(cropOutput, { recursive: true });
     }
     await createScreenshots({
       video,
-      outputFolder:cropOutput,
+      outputFolder: cropOutput,
       name: "crop",
       positions,
     });
@@ -246,7 +142,7 @@ clip = core.ffms2.Source(${video})
      `;
     await createScreenshots({
       video,
-      outputFolder:cropOutput,
+      outputFolder: cropOutput,
       name: "Cropped",
       positions,
       extraOptions,
@@ -288,17 +184,34 @@ clip = core.ffms2.Source(${video})
         `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"`
       );
     } else {
-       
-      const p2pTemplate = await askingConfirmation("Do you want to use p2p templated x264 settings y/n \n") 
-       
       console.log(
         "We are going to start a large setting analisys, and it will take some time, if Your video has less than 100000frames this will be skipped\n"
       );
-      if (numberOfFrames > 99999) {
-        await runTests(video, extraOptions);
-        console.log(
-          `You can look at all the pictures, x264 logs, and alanysis of each test on job${jobId}\n`
+      const p2pTemplate = await askingConfirmation(
+        "Do you want to use p2p templated x264 settings y/n \n"
+      );
+      let isPtp = false;
+      let isAnime = false;
+      if (p2pTemplate) {
+        isPtp = true;
+
+        const animeQuestion = await askingConfirmation(
+          "Is the video an Anime? \n"
         );
+        if (animeQuestion) {
+          isAnime = true;
+        }
+      }
+
+      if (numberOfFrames > 99999) {
+        await dox264Tests({
+          video,
+          extraOptions,
+          isAnime,
+          isPtp,
+          fps,
+          resolution: sourceHeight,
+        });
 
         console.log(
           `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"\n`
@@ -378,7 +291,7 @@ clip.set_output()
           fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
           const x264SSetting = fs
             .readFileSync(x264SettingLocation, "utf8")
-			.replace("encoded.mkv", `encoded${resolution}.mkv`)
+            .replace("encoded.mkv", `encoded${resolution}.mkv`)
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
@@ -402,8 +315,8 @@ clip.set_output()
           fs.writeFileSync(`vs${resolution}Setting.py`, vsPipe);
           const x264SSetting = fs
             .readFileSync(x264SettingLocation, "utf8")
-			.replace("encoded.mkv", `encoded${resolution}.mkv`)
-          .trim();
+            .replace("encoded.mkv", `encoded${resolution}.mkv`)
+            .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
             `vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crf} `

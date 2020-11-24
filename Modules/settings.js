@@ -2,6 +2,7 @@ const x264Test = [
   {
     name: "ip-ratio",
     test: [
+      "bin\\x264 --demuxer y4m  --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --pass 1 --bitrate 8000 --output noip1.mkv -",
       "bin\\x264 --demuxer y4m --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --pass 2 --bitrate 8000 --output noip2.mkv - ",
       "bin\\x264 --demuxer y4m --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --ipratio 1.3 --pass 1 --bitrate 8000 --output ip1.mkv -  ",
       "bin\\x264 --demuxer y4m --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --ipratio 1.3 --pass 2 --bitrate 8000 --output ip2.mkv -  ",

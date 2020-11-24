@@ -24,13 +24,10 @@ const p2pSettings = [
   {
     name: "deblock",
     test: [
-      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock -3:-3 --output deblock--3.mkv - --ref --min-keyint  `,
-      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock -2:-2 --output deblock--2.mkv - --ref --min-keyint  `,
-      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock -1:-1 --output deblock--1.mkv - --ref --min-keyint  `,
-      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock 0:0 --output deblock-0.mkv - --ref --min-keyint  `,
-      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock 1:1 --output deblock-1.mkv - --ref --min-keyint  `,
-      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock 2:2 --output deblock-2.mkv - --ref --min-keyint  `,
-      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock 3:3 --output deblock-3.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock -3:-3 --output deblock--3-3.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock -2:-3 --output deblock--2-3.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock -3:-2 --output deblock--3-2.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --deblock -2:-2 --output deblock--2-2.mkv - --ref --min-keyint  `,
     ],
   },
   {
@@ -41,20 +38,59 @@ const p2pSettings = [
       `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --qcomp 0.8 --output qcomp-0.8.mkv - --ref --min-keyint  `,
     ],
   },
+  {
+    name: "psy-rd",
+    test: [
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.8:0 --output psy-rd-0.8-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.85:0 --output psy-rd-0.85-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.9:0 --output psy-rd-0.9-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.95:0 --output psy-rd-0.95-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1:0 --output psy-rd-1-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.05:0 --output psy-rd-1.05-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.1:0 --output psy-rd-1.1-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.15:0 --output psy-rd-1.15-0.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.8:0.5 --output psy-rd-0.8-0.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.85:0.5 --output psy-rd-0.85-0.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.9:0.5 --output psy-rd-0.9-0.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.95:0.5 --output psy-rd-0.95-0.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1:0.5 --output psy-rd-1-0.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.05:0.5 --output psy-rd-1.05-0.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.1:0.5 --output psy-rd-1.1-0.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.15:0.5 --output psy-rd-1.15-0.5.mkv - --ref --min-keyint `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.8:1 --output psy-rd-0.8-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.85:1 --output psy-rd-0.85-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.9:1 --output psy-rd-0.9-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.95:1 --output psy-rd-0.95-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1:1 --output psy-rd-1-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.05:1 --output psy-rd-1.05-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.1:1 --output psy-rd-1.1-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.15:1 --output psy-rd-1.15-1.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.8:1.5 --output psy-rd-0.8-1.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.85:1.5 --output psy-rd-0.85-1.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.9:1.5 --output psy-rd-0.9-1.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 0.95:1.5 --output psy-rd-0.95-1.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1:1.5 --output psy-rd-1-1.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.05:1.5 --output psy-rd-1.05-1.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.1:1.5 --output psy-rd-1.1-1.5.mkv - --ref --min-keyint  `,
+      `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --psy-rd 1.15:1.5 --output psy-rd-1.15-1.5.mkv - --ref --min-keyint  `,
+    ],
+  },
 ];
 
-for (const tests of p2pSettings) {
-  const { name, test } = tests;
-  console.log("name: ", name);
-  for (const setting of test) {
-    const fps = 24;
-    const ref = 15;
-    const newSetting = setting
-      .replace("--min-keyint", `--min-keyint ${fps}`)
-      .replace("--ref", `--ref ${ref}`);
-    console.log(newSetting);
-  }
-}
+module.exports = { p2pSettings };
+
+// for (const tests of p2pSettings) {
+// const { name, test } = tests;
+// console.log("name: ", name);
+// for (const setting of test) {
+// const fps = 24;
+// const ref = 15;
+// const newSetting = setting
+// .replace("--min-keyint", `--min-keyint ${fps}`)
+// .replace("--ref", `--ref ${ref}`);
+// console.log(newSetting);
+// }
+// }
 
 // Note the process is
 

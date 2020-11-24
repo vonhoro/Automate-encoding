@@ -47,7 +47,7 @@ screenshots.set_output()
 
     fs.writeFileSync("screenshots.py", screenShotsToAnalyze);
     await exec(`bin\\vspipe screenshots.py .`);
-    fs.unlinkSync("screenshots.py");
+    // fs.unlinkSync("screenshots.py");
 
     renameScreenshots(screenshotOutputFolder, name, positions, false);
   } catch (err) {

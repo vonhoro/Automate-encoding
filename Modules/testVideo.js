@@ -3,11 +3,11 @@ const path = require("path");
 const exec = util.promisify(require("child_process").exec);
 const fs = require("fs");
 const testVideo = async ({
-  currentFolder,
+  testFolder,
   video,
-  jobId,
   test,
-  name,
+  resolution,
+  fps,
   extraOptions,
 }) => {
   try {
@@ -25,23 +25,34 @@ extract.set_output()
     let newVideo = test
       .split(" ")
       .filter((setting) => setting.match(/.mkv$/))[0];
+    let ref;
+    switch (resolution) {
+      case 1080:
+        ref = 4;
+        break;
+      case 720:
+        ref = 9;
+        break;
+      case 576:
+        ref = 12;
+        break;
+      default:
+        ref = 16;
+    }
+    const videoOutput = path.join(testFolder, newVideo);
 
-    const updatedx264Test = test.replace(
-      newVideo,
-      `job${jobId}/${name}/${newVideo}`
-    );
-    let newVideoSrc = path.join(
-      currentFolder,
-      `job${jobId}/${name}/${newVideo}`
-    );
+    const updatedx264Test = test
+      .replace(newVideo, `"${videoOutput}"`)
+      .replace("--min-keyint", `--min-keyint ${fps}`)
+      .replace("--ref", `--ref ${ref}`);
     newVideo = newVideo.replace(".mkv", "");
     const { stdout, stderr } = await exec(
       `bin\\vspipe preview.py --y4m - | ${updatedx264Test}`
     );
     let log = `Setting Used = ${updatedx264Test} \n${stdout}\n${stderr}`;
-
-    fs.writeFileSync(`./job${jobId}/${name}/${newVideo}-log.txt`, log);
-    return { newVideo, newVideoSrc };
+    const x264Log = path.join(testFolder, `${newVideo}-log.txt`);
+    fs.writeFileSync(x264Log, log);
+    return { newVideo, newVideoSrc: videoOutput };
   } catch (err) {
     console.log(err);
   }

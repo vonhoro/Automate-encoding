@@ -86,7 +86,7 @@ screenshots.set_output()
 
       await exec(`bin\\vspipe ssPreview.py .`);
 
-      fs.unlinkSync("ssPreview.py");
+      // fs.unlinkSync("ssPreview.py");
 
       renameScreenshots(screenshotOutputFolder, name, positions, true);
     }

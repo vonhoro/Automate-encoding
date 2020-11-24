@@ -16,7 +16,7 @@ const jimpAnalysis = async (ssPath, test) => {
     const filesInDir = fs.readdirSync(ssPath);
     const screenshots = filesInDir
       .filter((filename) => filename.includes(test))
-      .filter((filename) => !filename.match(/^metadata/))
+      .filter((filename) => !filename.match(/Metadata/))
       .filter((format) => format.match(/.png$/));
     let screenShotAnalisis = "";
     for (let screenshot of screenshots) {
