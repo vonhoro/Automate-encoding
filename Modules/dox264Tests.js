@@ -100,11 +100,3 @@ const dox264Tests = async ({
 };
 
 module.exports = { dox264Tests };
-dox264Tests({
-  video: `r"C:\\Users\\Dan\\Downloads\\Anime\\Fall 2020\\Saenai Heroine no Sodatekata Fine 1080p BDRip 10 bits DD x265-EMBER\\Saenai.Heroine.no.Sodatekata.Fine.1080p.BDRip.10.bits.DD.x265-EMBER.mkv"`,
-  extraOptions: "",
-  isAnime: true,
-  isPtp: true,
-  fps: 24,
-  resolution: 1080,
-});
