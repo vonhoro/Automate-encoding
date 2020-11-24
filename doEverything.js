@@ -275,7 +275,7 @@ clip = core.ffms2.Source(${video})
     console.log("An analysis using the cropped screenshots will be done\n");
     const folderOfSS = path.join(
       currentFolder,
-      `jobCrop preview/Take number - ${cropTries}/screenshots`
+      `Crop preview/Take number - ${cropTries}/screenshots`
     );
     const analysis = await jimpAnalysis(folderOfSS, "Cropped");
     console.log(`Analysis result:\n treshhold = 5 \n${analysis}`);
