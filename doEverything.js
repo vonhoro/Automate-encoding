@@ -48,17 +48,16 @@ const runTests = async (video, extraOptions) => {
   try {
     const firstx264Test = `bin\\x264 --demuxer y4m  --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --pass 1 --bitrate 8000 --output job${jobId}/ip-ratio/noip1.mkv -`;
     console.log(`Current Job is job${jobId}\n`);
-    const sourcetFolder = path.join(currentFolder,`job${jobId}/source`)
+    const sourceFolder = path.join(currentFolder,`job${jobId}/source`)
 
-    if (!fs.existsSync(outputFolder)) {
-      fs.mkdirSync(outputFolder,{recursive:true});
+    if (!fs.existsSync(sourceFolder)) {
+      fs.mkdirSync(sourceFolder,{recursive:true});
     }
     await createScreenshotsMetadata({
       video,
       outputFolder:sourceFolder,
-      name: "source",
+      name: "Source",
       positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
-      resolutions: [1080],
       extraOptions,
     });
 
@@ -67,7 +66,7 @@ const runTests = async (video, extraOptions) => {
     await createScreenshots({
       video,
       outputFolder:sourceFolder,
-      name: "source",
+      name: "Source",
       positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
       extraOptions,
     });
@@ -78,10 +77,10 @@ const runTests = async (video, extraOptions) => {
       const sourceSsPath = path.join(sourceFolder,`screenshots`
     );
  
-    copyScreenshots(sourceSsPath, ipratioFolder, "source");
+    copyScreenshots(sourceSsPath, ipratioFolder, "Source");
     // analyze the screen shots from source
 
-    await jimpAnalysis(sourceSsPath, "source");
+    await jimpAnalysis(sourceSsPath, "Source");
 
     await testx264Setting({
       video,
@@ -126,13 +125,10 @@ const runTests = async (video, extraOptions) => {
           outputFolder:testFolder,
           name: newVideo,
           positions: [30, 90, 150, 210, 270, 330, 390],
-          resolutions: [1080],
           extraOptions,
         });
 
-        const ssPath = path.join(
-          currentFolder,
-          `job${jobId}/${oldFolder}/screenshots`
+        const ssPath = path.join(testFolder,'screenshots'
         );
         await jimpAnalysis(ssPath, newVideo);
         const newData = await testVideo({
