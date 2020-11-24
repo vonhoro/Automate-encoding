@@ -13,7 +13,6 @@ const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
 const { testCRF } = require("./Modules/testCRF.js");
 const { testVideo } = require("./Modules/testVideo.js");
-const { testx264Setting } = require("./Modules/testx264Setting.js");
 const { x264Test } = require("./Modules/settings.js");
 
 const {
