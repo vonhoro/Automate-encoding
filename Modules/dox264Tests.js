@@ -7,9 +7,7 @@ const { copyScreenshots, currentFolder, getOSuri } = require("./Utils.js");
 const { p2pSettings } = require("./p2px264Settings");
 const { testVideo } = require("./testVideo.js");
 const { createScreenshots } = require("./createScreenshots.js");
-const { testx264Setting } = require("./testx264Setting.js");
 const { x264Test } = require("./settings.js");
-const { getVideoInfo } = require("./getVideoInfo.js");
 const { createScreenshotsMetadata } = require("./createScreenshotsMetadata.js");
 const { jimpAnalysis } = require("./jimpAnalysis.js");
 const dox264Tests = async ({
@@ -100,11 +98,11 @@ const dox264Tests = async ({
 };
 
 module.exports = { dox264Tests };
-dox264Tests({
-  video: `r"C:\\Users\\Dan\\Downloads\\Anime\\Fall 2020\\Saenai Heroine no Sodatekata Fine 1080p BDRip 10 bits DD x265-EMBER\\Saenai.Heroine.no.Sodatekata.Fine.1080p.BDRip.10.bits.DD.x265-EMBER.mkv"`,
-  extraOptions: "",
-  isAnime: true,
-  isPtp: true,
-  fps: 24,
-  resolution: 1080,
-});
+// dox264Tests({
+  // video: `r"C:\\Users\\Dan\\Downloads\\Anime\\Fall 2020\\Saenai Heroine no Sodatekata Fine 1080p BDRip 10 bits DD x265-EMBER\\Saenai.Heroine.no.Sodatekata.Fine.1080p.BDRip.10.bits.DD.x265-EMBER.mkv"`,
+  // extraOptions: "",
+  // isAnime: true,
+  // isPtp: true,
+  // fps: 24,
+  // resolution: 1080,
+// });
