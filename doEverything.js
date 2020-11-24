@@ -73,7 +73,7 @@ const runTests = async (video, extraOptions) => {
     });
     const ipratioFolder = path.join(currentFolder,`job${jobId}/ip-ratio/screenshots`)
     if (!fs.existsSync(ipratioFolder)) {
-      fs.mkdirSync(ipratioFolder,{recursive:true}));
+      fs.mkdirSync(ipratioFolder,{recursive:true});
     }
       const sourceSsPath = path.join(sourceFolder,`screenshots`
     );
@@ -116,14 +116,14 @@ const runTests = async (video, extraOptions) => {
         } 
         await createScreenshots({
           video: newVideoSrc,
-          outputFolder:testFolder
+          outputFolder:testFolder,
           name: newVideo,
           positions: [30, 90, 150, 210, 270, 330, 390],
           extraOptions,
         });
         await createScreenshotsMetadata({
           video: newVideoSrc,
-          outputFolder:testFolder
+          outputFolder:testFolder,
           name: newVideo,
           positions: [30, 90, 150, 210, 270, 330, 390],
           resolutions: [1080],
@@ -226,9 +226,12 @@ clip = core.ffms2.Source(${video})
       numberOfScreenshots
     );
     const cropOutput = path.join(currentFolder,`Crop preview/Take number - ${cropTries}`)
+      if (!fs.existsSync(cropOutput)) {
+      fs.mkdirSync(cropOutput,{recursive:true});
+    }
     await createScreenshots({
       video,
-      outputFolder:cropOutput
+      outputFolder:cropOutput,
       name: "crop",
       positions,
     });
@@ -247,13 +250,13 @@ clip = core.ffms2.Source(${video})
      `;
     await createScreenshots({
       video,
-      outputFolder:cropOutput
+      outputFolder:cropOutput,
       name: "Cropped",
       positions,
       extraOptions,
     });
     console.log(
-      `You can see all screenshots at jobCrop preview/Take number - ${cropTries} with the suggested options\n`
+      `You can see all screenshots at Crop preview/Take number - ${cropTries} with the suggested options\n`
     );
 
     const useSetting = await askingConfirmation(
