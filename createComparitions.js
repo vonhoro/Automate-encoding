@@ -12,6 +12,9 @@ const {
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
 const {
+  createComparitionScreenshots,
+} = require("./Modules/createComparitionScreenshots.js");
+const {
   createScreenshotsMetadata,
 } = require("./Modules/createScreenshotsMetadata.js");
 
@@ -24,106 +27,9 @@ const {
   closeQuestionInterface,
 } = require("./Modules/questionsInterfaces.js");
 
-const Upload = async (picture, key) => {
-  try {
-    const { stdout } = await exec(`ptpimg_uploader -k ${key} -b "${picture}"`);
+const { toUploadimg } = require("./Modules/uploadOptions.js");
 
-    return stdout;
-  } catch (err) {
-    return "";
-  }
-};
-
-const toUploadimg = async (folder, pictures) => {
-  let uploadedPicture = [];
-  for (const picture of pictures) {
-    const input = path.join(folder, picture);
-
-    let uploadedImgurl = "";
-    do {
-      uploadedImgurl = await Upload(input);
-
-      if (uploadedImgurl === "") {
-        console.log("An error ocurred, waiting 2 seconds before retrying");
-        await new Promise((r) => setTimeout(r, 2000));
-      }
-    } while (uploadedImgurl === "");
-
-    uploadedPicture = [...uploadedPicture, uploadedImgurl];
-  }
-
-  return uploadedPicture;
-};
-
-const makeAdjustments = async ({
-  video,
-  positions,
-  outputFolder,
-  name,
-  ssPath,
-}) => {
-  try {
-    const adjustment = await askingInteger(
-      "Input the number of frames you want to add or  subtract from the encoded screen so they match \nExamples: \nif the frames are 2100 and 2380, inputting -10 will take screenshots of frames 2090 and 2370\nif you input 20 they will be 2120 and 2400 \n"
-    );
-    console.log("The adjustment will be:", adjustment);
-    let adjustedPositions = positions.map((frame) => frame + adjustment);
-    const ssToDelete = fs.readdirSync(ssPath).filter((fileName) => {
-      if (fileName.includes(name)) {
-        return fileName;
-      }
-    });
-    for (const ss of ssToDelete) {
-      const fullPath = path.join(ssPath, ss);
-      fs.unlinkSync(fullPath);
-    }
-
-    await createScreenshotsMetadata({
-      video,
-      outputFolder,
-      name,
-      positions: adjustedPositions,
-    });
-    const liked = await askingConfirmation(
-      "Do you like the resutls? [Y]es [N]o ?\n"
-    );
-    if (liked) return;
-    await makeAdjustments({
-      video,
-      positions: adjustedPositions,
-      outputFolder,
-      name,
-      ssPath,
-    });
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const createComparitionSceenshots = async ({
-  ogVideo,
-  encodedVideo,
-  positions,
-  outputFolder,
-}) => {
-  try {
-    await createScreenshotsMetadata({
-      video: ogVideo,
-      outputFolder,
-      name: "Source",
-      positions,
-    });
-
-    await createScreenshotsMetadata({
-      video: encodedVideo,
-      outputFolder,
-      name: "Encoded",
-      positions,
-    });
-  } catch (err) {
-    console.log(err);
-  }
-};
+const { makeAdjustments } = require("./Modules/makeAdjustment.js");
 
 const main = async () => {
   try {
@@ -144,6 +50,7 @@ COMPARE
 [u][b]Screenshots[/b][/u]
 
 SCREENSHOTS`;
+    console.log(toUploadimg);
 
     const ogVideo = await askingVideo(
       "Put the  link of the original video before encoding\nExample: c:\\users\\videos\\my video.mkv\n"
@@ -186,7 +93,7 @@ SCREENSHOTS`;
         recursive: true,
       });
       positions = randomFrameDistribution(numberOfFrames, numberOfScreenshots);
-      await createComparitionSceenshots({
+      await createComparitionScreenshots({
         ogVideo,
         encodedVideo,
         outputFolder: currentFolder(),
@@ -211,6 +118,7 @@ SCREENSHOTS`;
       });
     }
     let redo = true;
+    console.log("Now we are taking the screenshots to show");
     do {
       const ss = fs.readdirSync(ssPath);
       const toShow = ss.filter((name) => name.match(/toShow/));
@@ -240,36 +148,83 @@ SCREENSHOTS`;
     const encoded = ss.filter((name) => name.match(/EncodedMetadata/));
 
     const toShow = ss.filter((name) => name.match(/toShow/));
-    const apiKey = await askingText(
-      "Tenter your ptpimg.me api key \nExample: 43fe0fee-f935-4084-8a38-3e632b0be68c\n"
-    ).trim();
-    const encodedUploaded = await toUploadimg(ssPath, encoded, apiKey);
-    const sourceUploaded = await toUploadimg(ssPath, source, apiKey);
-    const toShowUploaded = await toUploadimg(ssPath, toShow, apiKey);
-    compare = "";
-    for (let i = 0; i < encodedUploaded.length; i += 1) {
-      compare += `${encodedUploaded[i]
-        .replace("\n", "")
-        .replace("\r", "")} ${sourceUploaded[i]
-        .replace("\n", "")
-        .replace("\r", "")}\n`;
+
+    const uploadToPtp = await askingConfirmation(
+      "Do you want to upload to ptp img? [Y]es, [N]o\n"
+    );
+    if (uploadToPtp) {
+      let apiKey = await askingText(
+        "Tenter your ptpimg.me api key \nExample: 43fe0fee-f935-4084-8a38-3e632b0be68c\n"
+      );
+      apiKey = apiKey.trim();
+      const encodedUploaded = await toUploadimg(
+        ssPath,
+        encoded,
+        apiKey,
+        "ptpimg.me"
+      );
+      const sourceUploaded = await toUploadimg(
+        ssPath,
+        source,
+        apiKey,
+        "ptpimg.me"
+      );
+      const toShowUploaded = await toUploadimg(
+        ssPath,
+        toShow,
+        apiKey,
+        "ptpimg.me"
+      );
+      compare = "";
+      for (let i = 0; i < encodedUploaded.length; i += 1) {
+        compare += `${encodedUploaded[i]
+          .replace("\n", "")
+          .replace("\r", "")} ${sourceUploaded[i]
+          .replace("\n", "")
+          .replace("\r", "")}\n`;
+      }
+      let SCREENSHOTS = "";
+      for (const picture of toShowUploaded) {
+        SCREENSHOTS += `${picture.replace("\n", "").replace("\r", "")}\n`;
+      }
+
+      formatOutput = formatOutput
+        .replace("COMPARE", compare)
+        .replace("SCREENSHOTS", SCREENSHOTS);
+
+      fs.writeFileSync("templateBBcode.txt", formatOutput);
+
+      formatOutput = formatOutput
+        .replace(/\[img\]/g, "")
+        .replace(/\[\/img\]/g, "");
+      fs.writeFileSync("template.txt", formatOutput);
     }
-    let SCREENSHOTS = "";
-    for (const picture of toShowUploaded) {
-      SCREENSHOTS += `${picture.replace("\n", "").replace("\r", "")}\n`;
+    const uploadToImgur = await askingConfirmation(
+      "Do you want to upload to Imgur? [Y]es, [N]o\n"
+    );
+    if (uploadToImgur) {
+      const encodedUploaded = await toUploadimg(ssPath, encoded, "", "imgur");
+      const sourceUploaded = await toUploadimg(ssPath, source, "", "imgurl");
+      const toShowUploaded = await toUploadimg(ssPath, toShow, "", "imgur");
+      compare = "";
+      for (let i = 0; i < encodedUploaded.length; i += 1) {
+        compare += `${encodedUploaded[i]
+          .replace("\n", "")
+          .replace("\r", "")} ${sourceUploaded[i]
+          .replace("\n", "")
+          .replace("\r", "")}\n`;
+      }
+      let SCREENSHOTS = "";
+      for (const picture of toShowUploaded) {
+        SCREENSHOTS += `${picture.replace("\n", "").replace("\r", "")}\n`;
+      }
+
+      formatOutput = formatOutput
+        .replace("COMPARE", compare)
+        .replace("SCREENSHOTS", SCREENSHOTS);
+
+      fs.writeFileSync("templateImgur.txt", formatOutput);
     }
-
-    formatOutput = formatOutput
-      .replace("COMPARE", compare)
-      .replace("SCREENSHOTS", SCREENSHOTS);
-
-    fs.writeFileSync("templateBBcode.txt", formatOutput);
-
-    formatOutput = formatOutput
-      .replace(/\[img\]/g, "")
-      .replace(/\[\/img\]/g, "");
-    fs.writeFileSync("template.txt", formatOutput);
-
     closeQuestionInterface();
   } catch (err) {
     console.log(err);

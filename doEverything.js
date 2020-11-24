@@ -10,7 +10,7 @@ let counter = 0;
 let cropTries = 1;
 const currentFolder = process.cwd();
 
-// Modules
+// Modules    
 
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
@@ -48,18 +48,15 @@ const runTests = async (video, extraOptions) => {
   try {
     const firstx264Test = `bin\\x264 --demuxer y4m  --level 4.1 --no-mbtree --no-dct-decimate --preset veryslow --no-fast-pskip --keyint 240 --colormatrix bt709 --vbv-maxrate 50000 --vbv-bufsize 62500 --merange 32 --bframes 10 --deblock -3,-3 --qcomp 0.62 --aq-mode 3 --aq-strength 0.8 --psy-rd 1.1 --pass 1 --bitrate 8000 --output job${jobId}/ip-ratio/noip1.mkv -`;
     console.log(`Current Job is job${jobId}\n`);
+    const sourcetFolder = path.join(currentFolder,`job${jobId}/source`)
 
-    if (!fs.existsSync(`job${jobId}`)) {
-      fs.mkdirSync(`job${jobId}`);
-    }
-    if (!fs.existsSync(`job${jobId}/source`)) {
-      fs.mkdirSync(`job${jobId}/source`);
+    if (!fs.existsSync(outputFolder)) {
+      fs.mkdirSync(outputFolder,{recursive:true});
     }
     await createScreenshotsMetadata({
       video,
-      jobId,
-      folder: "source",
-      test: "source",
+      outputFolder:sourceFolder,
+      name: "source",
       positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
       resolutions: [1080],
       extraOptions,
@@ -69,27 +66,19 @@ const runTests = async (video, extraOptions) => {
 
     await createScreenshots({
       video,
-      jobId,
-      folder: "source",
-      test: "source",
+      outputFolder:sourceFolder,
+      name: "source",
       positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
       extraOptions,
     });
-    if (!fs.existsSync(`job${jobId}/ip-ratio`)) {
-      fs.mkdirSync(`job${jobId}/ip-ratio`);
+    const ipratioFolder = path.join(currentFolder,`job${jobId}/ip-ratio/screenshots`)
+    if (!fs.existsSync(ipratioFolder)) {
+      fs.mkdirSync(ipratioFolder,{recursive:true}));
     }
-    if (!fs.existsSync(`job${jobId}/ip-ratio/screenshots`)) {
-      fs.mkdirSync(`job${jobId}/ip-ratio/screenshots`);
-    }
-    const sourceSsPath = path.join(
-      currentFolder,
-      `job${jobId}/source/screenshots`
+      const sourceSsPath = path.join(sourceFolder,`screenshots`
     );
-    const sourceSsDestination = path.join(
-      currentFolder,
-      `job${jobId}/ip-ratio/screenshots`
-    );
-    copyScreenshots(sourceSsPath, sourceSsDestination, "source");
+ 
+    copyScreenshots(sourceSsPath, ipratioFolder, "source");
     // analyze the screen shots from source
 
     await jimpAnalysis(sourceSsPath, "source");
@@ -113,31 +102,29 @@ const runTests = async (video, extraOptions) => {
       let oldFolder;
 
       for (const test of setting.test) {
-        if (!fs.existsSync(`job${jobId}/${setting.name}`)) {
+         let testFolder = path.join(currentFolder,`job${jobId}/${setting.name}`)
+        if (!fs.existsSync(testFolder)) {
           fs.mkdirSync(`job${jobId}/${setting.name}`);
-          fs.mkdirSync(`job${jobId}/${setting.name}/screenshots`);
+         
+          fs.mkdirSync(path.join(testFolder,`screenshots`),{recursive:true});
           const sourceSsDestination = path.join(
             currentFolder,
             `job${jobId}/${setting.name}/screenshots`
           );
           copyScreenshots(sourceSsPath, sourceSsDestination, "source");
-          oldFolder = x264Test[counter - 1].name;
-        } else {
-          oldFolder = setting.name;
-        }
+          testFolder = path.join(currentFolder,`job${jobId}/${x264Test[counter - 1].name}`);
+        } 
         await createScreenshots({
           video: newVideoSrc,
-          jobId,
-          folder: oldFolder,
-          test: newVideo,
+          outputFolder:testFolder
+          name: newVideo,
           positions: [30, 90, 150, 210, 270, 330, 390],
           extraOptions,
         });
         await createScreenshotsMetadata({
           video: newVideoSrc,
-          jobId,
-          folder: oldFolder,
-          test: newVideo,
+          outputFolder:testFolder
+          name: newVideo,
           positions: [30, 90, 150, 210, 270, 330, 390],
           resolutions: [1080],
           extraOptions,
@@ -238,16 +225,16 @@ clip = core.ffms2.Source(${video})
       numberOfFrames,
       numberOfScreenshots
     );
+    const cropOutput = path.join(currentFolder,`Crop preview/Take number - ${cropTries}`)
     await createScreenshots({
       video,
-      jobId: "Crop preview",
-      folder: `Take number - ${cropTries}`,
-      test: "crop",
+      outputFolder:cropOutput
+      name: "crop",
       positions,
     });
     const folder = path.join(
       currentFolder,
-      `jobCrop preview/Take number - ${cropTries}/screenshots`
+      `Crop preview/Take number - ${cropTries}/screenshots`
     );
     const { removeTop, removeBottom } = await cropVertically(folder, "crop");
     const { removeRight, removeLeft } = await cropHorizontally(folder, "crop");
@@ -260,9 +247,8 @@ clip = core.ffms2.Source(${video})
      `;
     await createScreenshots({
       video,
-      jobId: "Crop preview",
-      folder: `Take number - ${cropTries}`,
-      test: "Cropped",
+      outputFolder:cropOutput
+      name: "Cropped",
       positions,
       extraOptions,
     });
