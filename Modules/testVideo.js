@@ -14,6 +14,9 @@ const testVideo = async ({
     const videoTest = `from vapoursynth import core  
 clip = core.ffms2.Source(${video})
 ${extraOptions}
+ratio = clip.width/clip.height
+w = round(${resolution}*ratio/2)*2
+clip = core.resize.Spline36(clip,width=w,height=${resolution})
 extract = clip[10000:80000]
 extract = core.std.SelectEvery(extract, cycle=10000, offsets=range(60))
 extract = core.std.AssumeFPS(extract, fpsnum=clip.fps.numerator, fpsden=clip.fps.denominator)

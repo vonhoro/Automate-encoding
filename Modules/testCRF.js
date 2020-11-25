@@ -20,20 +20,24 @@ const testCRF = async ({
     // 576p 2-5 Mbps
     // 480p 1.5-3.5mbps
     let targetBitrate;
-
+    let ref;
     // kb\s /1024
     switch (resolution) {
       case 480:
         targetBitrate = [1.5, 3.5];
+        ref = 16;
         break;
       case 576:
         targetBitrate = [2, 5];
+        ref = 12;
         break;
       case 720:
         targetBitrate = [4, 9];
+        ref = 9;
         break;
       case 1080:
         targetBitrate = [8, 14];
+        ref = 4;
         break;
     }
 
@@ -42,7 +46,10 @@ const testCRF = async ({
     const length = Length ? Length : 50;
     const settingLocation = path.join(currentFolder, "vsSetting.py");
     const x264SettingLocation = path.join(currentFolder, `x264-setting.txt`);
-    const x264Setting = fs.readFileSync(x264SettingLocation, "utf8").trim();
+    const x264Setting = fs
+      .readFileSync(x264SettingLocation, "utf8")
+      .replace("--ref", `--ref ${ref}`)
+      .trim();
     let testText;
     if (fs.existsSync(settingLocation)) {
       testText = fs.readFileSync(settingLocation, "utf8");

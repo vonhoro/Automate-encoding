@@ -46,6 +46,28 @@ const dox264Tests = async ({
 
     if (!isAnime && isPtp) {
       settings = settings.filter((tests) => tests.name !== "deblock");
+    } else if (isAnime && isPtp) {
+      let modifiedSettings = [];
+      for (const setting of settings) {
+        let newSettingTest = [];
+        if (!setting.name.match(/aq-mode/)) {
+          let newSettingName = setting.name;
+
+          for (const test of setting.test) {
+            newSettingTest = [
+              ...newSettingTest,
+              test.replace(test, `${test} --aq-mode 2`),
+            ];
+          }
+
+          modifiedSettings = [
+            ...modifiedSettings,
+            { name: newSettingName, test: newSettingTest },
+          ];
+        }
+      }
+
+      settings = modifiedSettings;
     }
     for (const setting of settings) {
       const testFolder = path.join(
@@ -99,12 +121,11 @@ const dox264Tests = async ({
 
 module.exports = { dox264Tests };
 
-// dox264Tests({
-  // video: `r"C:\\Users\\Dan\\Downloads\\Anime\\Fall 2020\\Saenai Heroine no Sodatekata Fine 1080p BDRip 10 bits DD x265-EMBER\\Saenai.Heroine.no.Sodatekata.Fine.1080p.BDRip.10.bits.DD.x265-EMBER.mkv"`,
-  // extraOptions: "",
-  // isAnime: true,
-  // isPtp: true,
-  // fps: 24,
-  // resolution: 1080,
-// });
-
+dox264Tests({
+  video: `r"C:\\Users\\Dan\\Downloads\\Anime\\Fall 2020\\Saenai Heroine no Sodatekata Fine 1080p BDRip 10 bits DD x265-EMBER\\Saenai.Heroine.no.Sodatekata.Fine.1080p.BDRip.10.bits.DD.x265-EMBER.mkv"`,
+  extraOptions: "",
+  isAnime: true,
+  isPtp: true,
+  fps: 24,
+  resolution: 1080,
+});

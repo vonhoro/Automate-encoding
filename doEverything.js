@@ -181,7 +181,7 @@ clip = core.ffms2.Source(${video})
       );
     } else {
       console.log(
-        "We are going to start a large setting analisys, and it will take some time, if Your video has less than 100000frames this will be skipped\n"
+        "We are going to start a large setting analisys, and it will take some time, if Your video has less than 80100 frames this will be skipped\n"
       );
       const p2pTemplate = await askingConfirmation(
         "Do you want to use p2p templated x264 settings y/n \n"
@@ -191,15 +191,19 @@ clip = core.ffms2.Source(${video})
       if (p2pTemplate) {
         isPtp = true;
 
+        let p2pformat = "";
         const animeQuestion = await askingConfirmation(
           "Is the video an Anime? \n"
         );
         if (animeQuestion) {
           isAnime = true;
+          p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode 2 --aq-strength EDIT --deblock EDIT --qcomp EDIT --psy-rd EDIT`;
+        } else {
+          p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode EDIT --aq-strength EDIT --qcomp EDIT --psy-rd EDIT`;
         }
+        fs.writeFileSync(`x264-setting.txt`, p2pformat);
       }
-
-      if (numberOfFrames > 99999) {
+      if (numberOfFrames > 80070) {
         await dox264Tests({
           video,
           extraOptions,
@@ -229,6 +233,7 @@ clip = core.ffms2.Source(${video})
       "Now is time to look for the CRF settings  on the resolutions you want to encode on\n"
     );
     const Resolutions = [480, 576, 720, 1080];
+    const ref = [16, 12, 9, 4];
     let crfValues = [0, 0, 0, 0];
     let i = 0;
     for (const resolution of Resolutions) {
@@ -288,6 +293,7 @@ clip.set_output()
           const x264SSetting = fs
             .readFileSync(x264SettingLocation, "utf8")
             .replace("encoded.mkv", `encoded${resolution}.mkv`)
+            .replace("--ref", `--ref ${ref[i]}`)
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
@@ -312,6 +318,7 @@ clip.set_output()
           const x264SSetting = fs
             .readFileSync(x264SettingLocation, "utf8")
             .replace("encoded.mkv", `encoded${resolution}.mkv`)
+            .replace("--ref", `--ref ${ref[i]}`)
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
           await exec(
