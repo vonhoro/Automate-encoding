@@ -175,6 +175,27 @@ clip = core.ffms2.Source(${video})
     );
     const x264SettingFormat = `bin\\x264 --demuxer y4m  --output encoded.mkv - Add Your flags here`;
     fs.writeFileSync(`x264-setting.txt`, x264SettingFormat);
+    const p2pTemplate = await askingConfirmation(
+      "Do you want to use p2p templated x264 settings y/n \n"
+    );
+    let isPtp = false;
+    let isAnime = false;
+    if (p2pTemplate) {
+      isPtp = true;
+
+      let p2pformat = "";
+      const animeQuestion = await askingConfirmation(
+        "Is the video an Anime? \n"
+      );
+
+      if (animeQuestion) {
+        isAnime = true;
+        p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode 2 --aq-strength EDIT --deblock EDIT --qcomp EDIT --psy-rd EDIT`;
+      } else {
+        p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode EDIT --aq-strength EDIT --qcomp EDIT --psy-rd EDIT`;
+      }
+      fs.writeFileSync(`x264-setting.txt`, p2pformat);
+    }
     if (testX264Settings) {
       console.log(
         `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"`
@@ -183,26 +204,6 @@ clip = core.ffms2.Source(${video})
       console.log(
         "We are going to start a large setting analisys, and it will take some time, if Your video has less than 80100 frames this will be skipped\n"
       );
-      const p2pTemplate = await askingConfirmation(
-        "Do you want to use p2p templated x264 settings y/n \n"
-      );
-      let isPtp = false;
-      let isAnime = false;
-      if (p2pTemplate) {
-        isPtp = true;
-
-        let p2pformat = "";
-        const animeQuestion = await askingConfirmation(
-          "Is the video an Anime? \n"
-        );
-        if (animeQuestion) {
-          isAnime = true;
-          p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode 2 --aq-strength EDIT --deblock EDIT --qcomp EDIT --psy-rd EDIT`;
-        } else {
-          p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode EDIT --aq-strength EDIT --qcomp EDIT --psy-rd EDIT`;
-        }
-        fs.writeFileSync(`x264-setting.txt`, p2pformat);
-      }
       if (numberOfFrames > 80070) {
         await dox264Tests({
           video,
@@ -263,8 +264,8 @@ clip = core.ffms2.Source(${video})
           extraOptions,
         });
         crfValues[i] = crf;
-        i += 1;
       }
+      i += 1;
     }
     console.log(
       "Now that we finish all the test is time to start the encode\n"
@@ -274,7 +275,7 @@ clip = core.ffms2.Source(${video})
     );
     const vspipeLocation = path.join(currentFolder, `vsSetting.py`);
     const x264SettingLocation = path.join(currentFolder, `x264-setting.txt`);
-    if (willYouChange) {
+    if (!willYouChange) {
       let i = 0;
       for (const resolution of Resolutions) {
         const confirm = await askingConfirmation(
