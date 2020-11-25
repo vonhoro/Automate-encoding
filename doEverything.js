@@ -196,7 +196,10 @@ clip = core.ffms2.Source(${video})
       }
       fs.writeFileSync(`x264-setting.txt`, p2pformat);
     }
-    if (testX264Settings) {
+    const areyousure = await askingConfirmation(
+      "Are you sure you want to do the test ? [Y]es or [N]ot\n"
+    );
+    if (testX264Settings && areyousure) {
       console.log(
         `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"`
       );
