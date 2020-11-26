@@ -22,13 +22,23 @@ const dox264Tests = async ({
     let settings = isPtp ? p2pSettings : x264Test;
     const sourceFolder = path.join(currentFolder(), `job${jobId}/Source`);
     fs.mkdirSync(sourceFolder, { recursive: true });
-
+    extraOptions = extraOptions === undefined ? "" : extraOptions;
+    const extractOptions = `
+${extraOptions}
+nframes = clip.num_frames
+numberSS = 7
+offset = round(nframes*.15)
+cycle =round(nframes*.7/(numberSS)) 
+clip = core.std.Trim(clip, first=offset, last=clip.num_frames-offset)
+clip = core.std.SelectEvery(clip, cycle, offsets=range(60))
+clip = core.std.AssumeFPS(clip, fpsnum=clip.fps.numerator, fpsden=clip.fps.denominator)
+`;
     await createScreenshotsMetadata({
       video,
       outputFolder: sourceFolder,
       name: "Source",
-      positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
-      extraOptions,
+      positions: [30, 90, 150, 210, 270, 330, 390],
+      extraOptions: extractOptions,
     });
 
     //creates Screenshot to analzye from source
@@ -37,8 +47,8 @@ const dox264Tests = async ({
       video,
       outputFolder: sourceFolder,
       name: "Source",
-      positions: [10030, 20030, 30030, 40030, 50030, 60030, 70030],
-      extraOptions,
+      positions: [30, 90, 150, 210, 270, 330, 390],
+      extraOptions: extractOptions,
     });
 
     const sourceSsPath = path.join(sourceFolder, `screenshots`);

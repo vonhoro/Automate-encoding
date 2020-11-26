@@ -17,10 +17,14 @@ ${extraOptions}
 ratio = clip.width/clip.height
 w = round(${resolution}*ratio/2)*2
 clip = core.resize.Spline36(clip,width=w,height=${resolution})
-extract = clip[10000:80000]
-extract = core.std.SelectEvery(extract, cycle=10000, offsets=range(60))
-extract = core.std.AssumeFPS(extract, fpsnum=clip.fps.numerator, fpsden=clip.fps.denominator)
-extract.set_output() 
+nframes = clip.num_frames
+numberSS = 7
+offset = round(nframes*.15)
+cycle =round(nframes*.7/(numberSS)) 
+clip = core.std.Trim(clip, first=offset, last=clip.num_frames-offset)
+clip = core.std.SelectEvery(clip, cycle, offsets=range(60))
+clip = core.std.AssumeFPS(clip, fpsnum=clip.fps.numerator, fpsden=clip.fps.denominator)
+clip.set_output() 
 `;
 
     fs.writeFileSync("preview.py", videoTest);

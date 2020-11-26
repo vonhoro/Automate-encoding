@@ -197,34 +197,22 @@ clip = core.ffms2.Source(${video})
       fs.writeFileSync(`x264-setting.txt`, p2pformat);
     }
     const areyousure = await askingConfirmation(
-      "Are you sure you want to do the test ? [Y]es or [N]ot\n"
+      "Are you sure you want to do the tests ? [Y]es or [N]ot\n"
     );
-    if (testX264Settings && areyousure) {
-      console.log(
-        `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"`
-      );
-    } else {
-      console.log(
-        "We are going to start a large setting analisys, and it will take some time, if Your video has less than 80100 frames this will be skipped\n"
-      );
-      if (numberOfFrames > 80070) {
-        await dox264Tests({
-          video,
-          extraOptions,
-          isAnime,
-          isPtp,
-          fps,
-          resolution: sourceHeight,
-        });
 
-        console.log(
-          `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"\n`
-        );
-      } else {
-        console.log(
-          "The number of frames on the video is too low so test were not run\n"
-        );
-      }
+    if (!testX264Settings && areyousure) {
+      await dox264Tests({
+        video,
+        extraOptions,
+        isAnime,
+        isPtp,
+        fps,
+        resolution: sourceHeight,
+      });
+
+      console.log(
+        `Edit x264-setting.txt with the settings you want to use dont change the demuxer or the input "-"\n`
+      );
     }
     let confifrmEdittedx264 = false;
     do {

@@ -15,7 +15,7 @@ video.set_output()
     fs.writeFileSync("videoInfo.py", getInfoScript);
 
     const { stdout, stderr } = await exec(`bin\\vspipe videoInfo.py -i -`);
-
+    console.log(stdout);
     fs.unlinkSync("videoInfo.py");
     // take out the frames information
     const stdoutArray = stdout.split("\n");
@@ -66,6 +66,3 @@ video.set_output()
 };
 
 module.exports = { getVideoInfo };
-// getVideoInfo(
-// "C:\\Users\\Dan\\Downloads\\Anime\\Saekano\\Season1\\Season 2\\[Mysteria] Saenai Heroine no Sodatekata Flat - S01E11 v2 (BD 1080p HEVC FLAC) [2180AA83].mkv"
-// );
