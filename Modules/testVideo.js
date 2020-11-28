@@ -54,9 +54,9 @@ clip.set_output()
       .replace("--ref", `--ref ${ref}`);
     newVideo = newVideo.replace(".mkv", "");
     const { stdout, stderr } = await exec(
-      `bin\\vspipe preview.py --y4m - | ${updatedx264Test}`
+      `bin\\vspipe preview.py --y4m - | ${updatedx264Test} --bframes 16`
     );
-    let log = `Setting Used = ${updatedx264Test} \n${stdout}\n${stderr}`;
+    let log = `Setting Used = ${updatedx264Test} --bframes 16\n${stdout}\n${stderr}`;
     const x264Log = path.join(testFolder, `${newVideo}-log.txt`);
     fs.writeFileSync(x264Log, log);
     return { newVideo, newVideoSrc: videoOutput };

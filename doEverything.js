@@ -190,9 +190,9 @@ clip = core.ffms2.Source(${video})
 
       if (animeQuestion) {
         isAnime = true;
-        p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode 2 --aq-strength EDIT --deblock EDIT --qcomp EDIT --psy-rd EDIT`;
+        p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode 2 --aq-strength EDIT --deblock EDIT --qcomp EDIT --psy-rd EDIT --bframes 16`;
       } else {
-        p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode EDIT --aq-strength EDIT --qcomp EDIT --psy-rd EDIT`;
+        p2pformat = `bin\\x264 --demuxer y4m --level 4.1 --b-adapt 2 --vbv-bufsize 78125 --vbv-maxrate 62500 --rc-lookahead 250  --me tesa --direct auto --subme 11 --trellis 2 --no-dct-decimate --no-fast-pskip --output encoded.mkv - --ref --min-keyint ${fps} --aq-mode EDIT --aq-strength EDIT --qcomp EDIT --psy-rd EDIT --bframes 16`;
       }
       fs.writeFileSync(`x264-setting.txt`, p2pformat);
     }
@@ -288,10 +288,12 @@ clip.set_output()
             .replace("--ref", `--ref ${ref[i]}`)
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
-          await exec(
+          const { stdout, stderr } = await exec(
             `bin\\vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crfValues[i]} `
           );
         }
+        const x264log = stdout+stderr
+        fs.writeFileSync(`x264-${resolution}-log.txt`,x264log)
         i += 1;
       }
     } else {
@@ -313,9 +315,11 @@ clip.set_output()
             .replace("--ref", `--ref ${ref[i]}`)
             .trim();
           console.log(` . . . Encdoding ${resolution}\n`);
-          await exec(
+        const {stdout,stderr} = await exec(
             `vspipe --y4m vs${resolution}Setting.py - | ${x264SSetting} --crf ${crf} `
           );
+          const x264log = stdout+stderr
+        fs.writeFileSync(`x264-${resolution}-log.txt`,x264log)
         }
         i += 1;
       }
