@@ -4,6 +4,7 @@ const createComparitionScreenshots = async ({
   encodedVideo,
   positions,
   outputFolder,
+  ogExtraOptions,
 }) => {
   try {
     await createScreenshotsMetadata({
@@ -11,6 +12,7 @@ const createComparitionScreenshots = async ({
       outputFolder,
       name: "Source",
       positions,
+      extraOptions:ogExtraOptions,
     });
 
     await createScreenshotsMetadata({

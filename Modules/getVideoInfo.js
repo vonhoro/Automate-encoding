@@ -15,7 +15,7 @@ video.set_output()
     fs.writeFileSync("videoInfo.py", getInfoScript);
 
     const { stdout, stderr } = await exec(`bin\\vspipe videoInfo.py -i -`);
-    console.log(stdout);
+
     fs.unlinkSync("videoInfo.py");
     // take out the frames information
     const stdoutArray = stdout.split("\n");

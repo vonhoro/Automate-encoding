@@ -10,6 +10,11 @@ const {
   randomFrameDistribution,
 } = require("./Modules/utils.js");
 const { getVideoInfo } = require("./Modules/getVideoInfo.js");
+
+const {
+  cropVertically,
+  cropHorizontally,
+} = require("./Modules/cropFunction.js");
 const { createScreenshots } = require("./Modules/createScreenshots.js");
 const {
   createComparitionScreenshots,
@@ -50,7 +55,6 @@ COMPARE
 [u][b]Screenshots[/b][/u]
 
 SCREENSHOTS`;
-    console.log(toUploadimg);
 
     const ogVideo = await askingVideo(
       "Put the  link of the original video before encoding\nExample: c:\\users\\videos\\my video.mkv\n"
@@ -59,6 +63,40 @@ SCREENSHOTS`;
       "Put the  link of the same video encoded \nExample: c:\\users\\videos\\my video encoded.mkv\n"
     );
 
+    const shouldAutoCcrop = await askingConfirmation(
+      "Do you want to crop the original video with autocrop?[Y]es, [N]o\n"
+    );
+    let extraOptions = "";
+
+    const { numberOfFrames, sourceHeight } = await getVideoInfo(ogVideo);
+    if (shouldAutoCcrop) {
+      const positions = randomFrameDistribution(numberOfFrames, 10);
+      const outputFolder = path.join(currentFolder(), `Crop Test`);
+      fs.mkdirSync(outputFolder, { recursive: true });
+      await createScreenshots({
+        video: ogVideo,
+        outputFolder,
+        name: "toCrop",
+        positions,
+      });
+
+      const screenShotsFolder = path.join(outputFolder, `screenshots`);
+
+      const { removeTop, removeBottom } = await cropVertically(
+        screenShotsFolder,
+        "toCrop"
+      );
+      const { removeRight, removeLeft } = await cropHorizontally(
+        screenShotsFolder,
+        "toCrop"
+      );
+      fs.rmdirSync(outputFolder, { recursive: true });
+      extraOptions = `
+ratio = clip.width/clip.height
+clip = core.std.Crop(clip, left=${removeLeft}, right=${removeRight},top = ${removeTop},bottom = ${removeBottom})
+w = round(${sourceHeight}*ratio/2)*2
+clip = core.resize.Spline36(clip,width=w,height=${sourceHeight})`;
+    }
     const numberOfScreenshots = await askingNaturalNumber(
       "Enter the number of comparition screenshots you want to take, default is 4\n",
       4
@@ -67,8 +105,6 @@ SCREENSHOTS`;
       "The number of comparitions screenshtos will be: ",
       numberOfScreenshots
     );
-
-    const { numberOfFrames } = await getVideoInfo(ogVideo);
 
     let encodedVideoMediaInfo = "";
     if (encodedVideo.match(/^r/)) {
@@ -98,10 +134,17 @@ SCREENSHOTS`;
         encodedVideo,
         outputFolder: currentFolder(),
         positions,
+        ogExtraOptions: extraOptions,
       });
       liked = await askingConfirmation(
         "Do you liked the comparition screenshots taken at the screenshot folder [Y/N] \nif you don't new ones Will be created\n"
       );
+      const removeCrop = await askingConfirmation(
+        "Do you want to remove the crop? [Y]/[N]\n"
+      );
+      if (removeCrop) {
+        extraOptions = "";
+      }
     } while (!liked);
     const ssPath = path.join(currentFolder(), "screenshots");
 
