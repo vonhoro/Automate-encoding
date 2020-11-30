@@ -13,8 +13,10 @@ const testCRF = async ({
   Offset,
   Length,
   extraOptions,
+  x264Set,
 }) => {
   try {
+  
     // 1080p 8-14 Mbps
     // 720p 4-9 Mbps
     // 576p 2-5 Mbps
@@ -46,10 +48,10 @@ const testCRF = async ({
     const length = Length ? Length : 50;
     const settingLocation = path.join(currentFolder, "vsSetting.py");
     const x264SettingLocation = path.join(currentFolder, `x264-setting.txt`);
-    const x264Setting = fs
+    const x264Setting = fs.existsSync(x264SettingLocation) ? fs
       .readFileSync(x264SettingLocation, "utf8")
       .replace("--ref", `--ref ${ref}`)
-      .trim();
+      .trim() : x264Set;
     let testText;
     if (fs.existsSync(settingLocation)) {
       testText = fs.readFileSync(settingLocation, "utf8");

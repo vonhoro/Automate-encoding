@@ -187,9 +187,10 @@ clip = core.resize.Spline36(clip,width=w,height=${sourceHeight})`;
 
     const ss = fs.readdirSync(ssPath);
     const source = ss.filter((name) => name.match(/SourceMetadata/));
-
+    console.log(source)
+    
     const encoded = ss.filter((name) => name.match(/EncodedMetadata/));
-
+    console.log(encoded)
     const toShow = ss.filter((name) => name.match(/toShow/));
 
     const uploadToPtp = await askingConfirmation(

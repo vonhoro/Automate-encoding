@@ -8,12 +8,11 @@ const FormData = require("form-data");
 const uploadPtpimg = async (picture, key) => {
   try {
     console.log(picture);
-    console.log(key);
     const { stdout } = await exec(`ptpimg_uploader -k ${key} -b "${picture}"`);
 
     return stdout;
   } catch (err) {
-    console.log(err);
+    console.log("error on ptp upload");
     return "";
   }
 };
