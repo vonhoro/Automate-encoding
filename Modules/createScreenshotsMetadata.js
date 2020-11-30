@@ -24,11 +24,12 @@ const createScreenshotsMetadata = async ({
     let screenshotsToTake = "";
     let screenshotsCombined = "frames =";
     for (let i = 0; i < positions.length; i += 1) {
-      screenshotsToTake += `ss${i + 1} = clip[${positions[i]}]
-ss${i + 1} = core.text.Text(ss${i + 1},"\\nFrame ${
+      screenshotsToTake +=`
+ss${i + 1} = clip[${positions[i]}]
+pictType${i + 1} =  clip.get_frame(${positions[i]}).props['_PictType'].decode()
+ss${i + 1} = core.text.Text(ss${i + 1} ,"Frame ${
         positions[i]
-      } of " + str(clip.num_frames),alignment=8)
-ss${i + 1} = core.text.ClipInfo(ss${i + 1}, alignment=7)
+      } of " + str(clip.num_frames) + "\\nPicture type: " + pictType${i + 1} , alignment=7)
 `;
       screenshotsCombined += ` ss${i + 1} +`;
     }
@@ -95,3 +96,6 @@ screenshots.set_output()
   }
 };
 module.exports = { createScreenshotsMetadata };
+
+
+
